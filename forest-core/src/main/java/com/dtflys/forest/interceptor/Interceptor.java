@@ -96,6 +96,7 @@ public interface Interceptor<T> extends
      * @param request Forest请求对象
      * @param encoder Forest转换器
      * @param encodedData 序列化后的请求体数据
+     * @return 编码后的请求体数据
      */
     default byte[] onBodyEncode(ForestRequest request, ForestEncoder encoder, byte[] encodedData) {
         return encodedData;

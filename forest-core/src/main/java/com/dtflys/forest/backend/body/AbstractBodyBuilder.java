@@ -78,6 +78,15 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
         }
     }
 
+    /**
+     * 设置字节数组类型请求体
+     * @param httpReq 后端请求对象
+     * @param request Forest请求对象
+     * @param bytes 字节数组
+     * @param charset 字符集
+     * @param contentType 数据类型
+     * @param mergeCharset 是否合并字符集
+     */
     public void setBody(T httpReq, ForestRequest request, byte[] bytes, String charset, String contentType, boolean mergeCharset) {
         if (charset != null) {
             String text = new String(bytes, Charset.forName(charset));
