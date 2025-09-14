@@ -6,6 +6,7 @@
 
     <artifactId>forest-core</artifactId>
     <version>${revision}</version>
+    <name>${project.artifactId}</name>
 
     <parent>
         <groupId>com.dtflys.forest</groupId>

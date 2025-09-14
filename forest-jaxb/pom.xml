@@ -7,7 +7,7 @@
   <groupId>com.dtflys.forest</groupId>
   <artifactId>forest-jaxb</artifactId>
   <version>${revision}</version>
-  <name>forest-jaxb</name>
+  <name>${project.artifactId}</name>
 
   <parent>
     <groupId>com.dtflys.forest</groupId>
