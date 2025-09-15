@@ -21,4 +21,12 @@ public interface BaseReq2Client {
     @Get("/test")
     ForestRequest<?> test();
 
+    interface NoneBaseReqClient {
+
+        @Get("/test")
+        ForestRequest<?> test();
+
+    }
+
+
 }

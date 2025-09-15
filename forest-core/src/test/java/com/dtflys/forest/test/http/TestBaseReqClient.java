@@ -39,6 +39,8 @@ public class TestBaseReqClient extends BaseClientTest {
 
     private final BaseReq2Client baseReq2Client;
 
+    private final BaseReq2Client.NoneBaseReqClient noneBaseReqClient;
+
     private final BaseURLClient baseURLClient;
 
     private final BaseURLVarClient baseURLVarClient;
@@ -61,6 +63,7 @@ public class TestBaseReqClient extends BaseClientTest {
         configuration.setVariableValue("baseURL", "http://localhost:" + server.getPort());
         baseReqClient = configuration.createInstance(BaseReqClient.class);
         baseReq2Client = configuration.createInstance(BaseReq2Client.class);
+        noneBaseReqClient = configuration.createInstance(BaseReq2Client.NoneBaseReqClient.class);
         baseURLClient = configuration.createInstance(BaseURLClient.class);
         baseURLVarClient = configuration.createInstance(BaseURLVarClient.class);
     }
@@ -190,5 +193,20 @@ public class TestBaseReqClient extends BaseClientTest {
         assertThat(request.urlString()).isEqualTo("http://www.xxxx.com/test");
         assertThat(request.host()).isEqualTo("www.xxxx.com");
     }
+
+    @Test
+    public void testNoneBaseURL() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+        ForestRequest<?> request = noneBaseReqClient.test();
+        request.port(server.getPort());
+
+        assertThat(request.urlString()).isEqualTo("/test");
+        assertThat(request.host()).isNull();
+
+        assertThat(request).isNotNull();
+        String res = request.execute(String.class);
+        assertThat(res).isNotNull();
+    }
+
 
 }
