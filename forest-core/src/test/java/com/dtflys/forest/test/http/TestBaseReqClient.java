@@ -205,7 +205,12 @@ public class TestBaseReqClient extends BaseClientTest {
 
         assertThat(request).isNotNull();
         String res = request.execute(String.class);
-        assertThat(res).isNotNull();
+        assertThat(res).isNotNull().isEqualTo(EXPECTED);
+
+        mockRequest(server)
+                .assertMethodEquals("GET")
+                .assertPathEquals("/test");
+
     }
 
 
