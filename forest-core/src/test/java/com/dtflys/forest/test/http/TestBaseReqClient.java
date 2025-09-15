@@ -3,6 +3,7 @@ package com.dtflys.forest.test.http;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.http.client.BaseReq2Client;
 import com.dtflys.forest.test.http.client.BaseReqClient;
 import com.dtflys.forest.test.http.client.BaseURLClient;
 import com.dtflys.forest.test.http.client.BaseURLVarClient;
@@ -36,6 +37,8 @@ public class TestBaseReqClient extends BaseClientTest {
 
     private final BaseReqClient baseReqClient;
 
+    private final BaseReq2Client baseReq2Client;
+
     private final BaseURLClient baseURLClient;
 
     private final BaseURLVarClient baseURLVarClient;
@@ -57,6 +60,7 @@ public class TestBaseReqClient extends BaseClientTest {
         configuration.setVariableValue("port", server.getPort());
         configuration.setVariableValue("baseURL", "http://localhost:" + server.getPort());
         baseReqClient = configuration.createInstance(BaseReqClient.class);
+        baseReq2Client = configuration.createInstance(BaseReq2Client.class);
         baseURLClient = configuration.createInstance(BaseURLClient.class);
         baseURLVarClient = configuration.createInstance(BaseURLVarClient.class);
     }
@@ -177,6 +181,14 @@ public class TestBaseReqClient extends BaseClientTest {
     public void testBaidu() {
         String ret = baseURLClient.baidu();
         assertThat(ret).isNotBlank();
+    }
+
+    @Test
+    public void testCustomBaseURL() {
+        ForestRequest<?> request = baseReq2Client.test();
+        assertThat(request).isNotNull();
+        assertThat(request.urlString()).isEqualTo("http://www.xxxx.com/test");
+        assertThat(request.host()).isEqualTo("www.xxxx.com");
     }
 
 }
