@@ -192,7 +192,8 @@ public class TestGenericForestClient extends BaseClientTest {
                 .port(server.getPort())
                 .addQuery("a", "1")
                 .addQuery("a", "2")
-                .addQuery("a", "3")
+                .addQuery("a", "{a3}")
+                .var("a3", "3")
                 .execute();
         mockRequest(server)
                 .assertPathEquals("/")

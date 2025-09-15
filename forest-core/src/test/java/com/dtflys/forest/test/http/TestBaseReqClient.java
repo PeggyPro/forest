@@ -51,6 +51,7 @@ public class TestBaseReqClient extends BaseClientTest {
 
     public TestBaseReqClient(String backend, String jsonConverter) {
         super(backend, jsonConverter, configuration);
+        configuration.var("serverName", server.getHostName());
         configuration.setVariableValue("baseURL", "http://localhost:5000/");
         configuration.setVariableValue("userAgent", USER_AGENT);
         configuration.setVariableValue("port", server.getPort());
@@ -109,6 +110,7 @@ public class TestBaseReqClient extends BaseClientTest {
         ForestRequest request = response.getRequest();
         assertThat(request.getConnectTimeout()).isEqualTo(3000);
         assertThat(request.getReadTimeout()).isEqualTo(4000);
+        assertThat(request.host()).isEqualTo(server.getHostName());
         mockRequest(server)
                 .assertMethodEquals("GET")
                 .assertPathEquals("/base")
