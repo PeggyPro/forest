@@ -212,7 +212,7 @@ public class TestPoolClient extends BaseClientTest {
     @Test
     public void testPoolAsync_asyncPool() throws InterruptedException {
         ForestConfiguration poolConf = ForestConfiguration.createConfiguration()
-                .setVariableValue("port", server.getPort())
+                .var("port", server.getPort())
                 .setMaxConnections(30)
                 .setMaxAsyncThreadSize(30)
                 .setMaxAsyncQueueSize(10);

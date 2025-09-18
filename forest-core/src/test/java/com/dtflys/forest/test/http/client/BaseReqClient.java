@@ -16,7 +16,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @since 2018-04-09 16:27
  */
 @BaseRequest(
-        baseURL = "http://localhost:${port}/base",
+        baseURL = "http://{serverName}:${port}/base",
         headers = {
                 "Accept-Charset: ${encoding}",
                 "Accept: text/plain"

@@ -39,14 +39,14 @@ public class TestCookieClient extends BaseClientTest {
     @Test
     public void testLoginCookie() {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(EXPECTED)
-                .addHeader("Set-Cookie", "FOO=123-abc; Max-Age=2592000; Path=/abc; Secure; Version=1; Domain=" + server.getHostName())
+                .addHeader("Set-Cookie", "FOO={\"value\": \"123-abc\"}; Max-Age=2592000; Path=/abc; Secure; Version=1; Domain=" + server.getHostName())
                 .addHeader("Set-Cookie", "BAR=789-xyz; Max-Age=2592000; Secure; HttpOnly; Version=2; Domain=" + server.getHostName())
                 .addHeader("Set-Cookie", "A=1; Max-Age=2592000; Comment=XXXX; Secure; HttpOnly; Version=3"));
 
         ForestResponse<String> response = cookieClient.login("foo", "bar");
         assertThat(response).isNotNull();
         assertThat(response.getCookie("FOO")).isNotNull();
-        assertThat(response.getCookie("FOO").getValue()).isNotNull().isEqualTo("123-abc");
+        assertThat(response.getCookie("FOO").getValue()).isNotNull().isEqualTo("{\"value\": \"123-abc\"}");
         assertThat(response.getCookie("BAR")).isNotNull();
         assertThat(response.getCookie("BAR").getValue()).isNotNull().isEqualTo("789-xyz");
         assertThat(response.getCookie("A")).isNotNull();
@@ -56,7 +56,7 @@ public class TestCookieClient extends BaseClientTest {
     @Test
     public void testLoginCookieAutoSaveAndLoad() {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(EXPECTED)
-                .addHeader("Set-Cookie", "FOO=123-abc; Max-Age=2592000; Domain=" + server.getHostName())
+                .addHeader("Set-Cookie", "FOO={\"value\": \"123-abc\"}; Max-Age=2592000; Domain=" + server.getHostName())
                 .addHeader("Set-Cookie", "BAR=789-xyz; Max-Age=2592000; Domain=" + server.getHostName())
                 .addHeader("Set-Cookie", "A=1; Max-Age=2592000; Domain=" + server.getHostName())
                 .addHeader("Set-Cookie", "Path=/; Max-Age=2592000; Domain=" + server.getHostName()));
@@ -71,7 +71,7 @@ public class TestCookieClient extends BaseClientTest {
         cookieClient.doSomething();
 
         mockRequest(server)
-                .assertHeaderEquals("Cookie", "FOO=123-abc; BAR=789-xyz; A=1");
+                .assertHeaderEquals("Cookie", "FOO={\"value\": \"123-abc\"}; BAR=789-xyz; A=1");
     }
 
 }

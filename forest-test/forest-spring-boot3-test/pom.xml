@@ -10,9 +10,7 @@
     <artifactId>forest-spring-boot3-test</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
-
-    <name>forest-spring-boot-test</name>
-    <url>http://maven.apache.org</url>
+    <name>${project.artifactId}</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

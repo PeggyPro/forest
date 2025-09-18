@@ -1033,10 +1033,10 @@ public class ForestMethod<T> extends AbstractVariableScope<ForestMethod<T>> impl
 
         if (baseURL != null) {
             renderedURL.setBaseURL(baseURL);
-            if (address == null) {
+//            if (address == null) {
                 // 默认根地址
-                address = DEFAULT_ADDRESS;
-            }
+//                address = DEFAULT_ADDRESS;
+//            }
         }
         if (address != null) {
             renderedURL.setAddress(address, false);

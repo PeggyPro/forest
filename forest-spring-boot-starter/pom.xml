@@ -6,6 +6,7 @@
 
     <artifactId>forest-spring-boot-starter</artifactId>
     <version>${revision}</version>
+    <name>${project.artifactId}</name>
 
     <parent>
         <groupId>com.dtflys.forest</groupId>

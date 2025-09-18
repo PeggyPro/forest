@@ -613,7 +613,7 @@ public class ForestCookie implements Cloneable, Serializable {
                     return null;
                 }
                 cookieName = name;
-                cookieValue = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                cookieValue = value;
             }
         }
 

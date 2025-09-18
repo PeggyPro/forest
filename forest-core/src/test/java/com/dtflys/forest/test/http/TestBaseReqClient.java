@@ -3,6 +3,7 @@ package com.dtflys.forest.test.http;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.http.client.BaseReq2Client;
 import com.dtflys.forest.test.http.client.BaseReqClient;
 import com.dtflys.forest.test.http.client.BaseURLClient;
 import com.dtflys.forest.test.http.client.BaseURLVarClient;
@@ -36,6 +37,10 @@ public class TestBaseReqClient extends BaseClientTest {
 
     private final BaseReqClient baseReqClient;
 
+    private final BaseReq2Client baseReq2Client;
+
+    private final BaseReq2Client.NoneBaseReqClient noneBaseReqClient;
+
     private final BaseURLClient baseURLClient;
 
     private final BaseURLVarClient baseURLVarClient;
@@ -51,11 +56,14 @@ public class TestBaseReqClient extends BaseClientTest {
 
     public TestBaseReqClient(String backend, String jsonConverter) {
         super(backend, jsonConverter, configuration);
+        configuration.var("serverName", server.getHostName());
         configuration.setVariableValue("baseURL", "http://localhost:5000/");
         configuration.setVariableValue("userAgent", USER_AGENT);
         configuration.setVariableValue("port", server.getPort());
         configuration.setVariableValue("baseURL", "http://localhost:" + server.getPort());
         baseReqClient = configuration.createInstance(BaseReqClient.class);
+        baseReq2Client = configuration.createInstance(BaseReq2Client.class);
+        noneBaseReqClient = configuration.createInstance(BaseReq2Client.NoneBaseReqClient.class);
         baseURLClient = configuration.createInstance(BaseURLClient.class);
         baseURLVarClient = configuration.createInstance(BaseURLVarClient.class);
     }
@@ -109,6 +117,7 @@ public class TestBaseReqClient extends BaseClientTest {
         ForestRequest request = response.getRequest();
         assertThat(request.getConnectTimeout()).isEqualTo(3000);
         assertThat(request.getReadTimeout()).isEqualTo(4000);
+        assertThat(request.host()).isEqualTo(server.getHostName());
         mockRequest(server)
                 .assertMethodEquals("GET")
                 .assertPathEquals("/base")
@@ -176,5 +185,33 @@ public class TestBaseReqClient extends BaseClientTest {
         String ret = baseURLClient.baidu();
         assertThat(ret).isNotBlank();
     }
+
+    @Test
+    public void testCustomBaseURL() {
+        ForestRequest<?> request = baseReq2Client.test();
+        assertThat(request).isNotNull();
+        assertThat(request.urlString()).isEqualTo("http://www.xxxx.com/test");
+        assertThat(request.host()).isEqualTo("www.xxxx.com");
+    }
+
+    @Test
+    public void testNoneBaseURL() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+        ForestRequest<?> request = noneBaseReqClient.test();
+        request.port(server.getPort());
+
+        assertThat(request.urlString()).isEqualTo("/test");
+        assertThat(request.host()).isNull();
+
+        assertThat(request).isNotNull();
+        String res = request.execute(String.class);
+        assertThat(res).isNotNull().isEqualTo(EXPECTED);
+
+        mockRequest(server)
+                .assertMethodEquals("GET")
+                .assertPathEquals("/test");
+
+    }
+
 
 }

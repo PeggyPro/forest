@@ -186,7 +186,7 @@ public class ForestCookieHeader extends SimpleHeader {
             final ForestCookie cookie = list.get(i);
             builder.append(cookie.getName())
                     .append("=")
-                    .append(URLEncoder.ALL.encode(cookie.getValue(), StandardCharsets.UTF_8));
+                    .append(cookie.getValue());
             if (i < len - 1) {
                 builder.append("; ");
             }

@@ -9,9 +9,7 @@
 
     <artifactId>forest-test</artifactId>
     <packaging>pom</packaging>
-
-    <name>forest-test</name>
-    <url>http://maven.apache.org</url>
+    <name>${project.artifactId}</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
