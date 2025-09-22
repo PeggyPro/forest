@@ -136,11 +136,6 @@ public class TestGenericForestClient extends BaseClientTest {
         }
     }
 
-    @Test
-    public void testForestVersion() {
-        System.out.println(Forest.VERSION);
-    }
-
 
     @Test
     public void testRequest_url() throws MalformedURLException {
