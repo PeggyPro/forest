@@ -2055,6 +2055,18 @@ public class TestGenericForestClient extends BaseClientTest {
         assertThat(nums).isEqualTo(Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
     }
 
+    @Test
+    public void testRequest_unclosed_response_get_string() {
+        server.enqueue(new MockResponse().setBody("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"));
+        UnclosedResponse response = Forest.get("http://localhost:{}", server.getPort())
+                .executeAsUnclosedResponse();
+        assertThat(response).isNotNull();
+        assertThat(response.isClosed()).isFalse();
+        String nums = response.get(String.class);
+        assertThat(response.isClosed()).isTrue();
+        assertThat(nums).isNotNull();
+        assertThat(nums).isEqualTo("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    }
 
 
     @Test
@@ -2170,9 +2182,34 @@ public class TestGenericForestClient extends BaseClientTest {
 
     @Test
     public void testRequest_get_return_genericType() {
-        List<MyPost> posts = Forest.get("https://jsonplaceholder.typicode.com/posts")
+        server.enqueue(new MockResponse().setBody("[\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 1,\n" +
+                "    \"title\": \"sunt aut facere repellat provident occaecati excepturi optio reprehenderit\",\n" +
+                "    \"body\": \"quia et suscipit\\nsuscipit recusandae consequuntur expedita et cum\\nreprehenderit molestiae ut ut quas totam\\nnostrum rerum est autem sunt rem eveniet architecto\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 2,\n" +
+                "    \"title\": \"qui est esse\",\n" +
+                "    \"body\": \"est rerum tempore vitae\\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\\nqui aperiam non debitis possimus qui neque nisi nulla\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 3,\n" +
+                "    \"title\": \"ea molestias quasi exercitationem repellat qui ipsa sit aut\",\n" +
+                "    \"body\": \"et iusto sed quo iure\\nvoluptatem occaecati omnis eligendi aut ad\\nvoluptatem doloribus vel accusantium quis pariatur\\nmolestiae porro eius odio et labore et velit aut\"\n" +
+                "  }\n" +
+                "]"));
+        List<MyPost> posts = Forest.get("http://{}:{}/posts", server.getHostName(), server.getPort())
                 .execute(new TypeReference<List<MyPost>>() {});
         assertThat(posts).isNotNull();
+        assertThat(posts.size()).isEqualTo(3);
+        MyPost post0 = posts.get(0);
+        assertThat(post0).isNotNull();
+        assertThat(post0.getUserId()).isEqualTo(1);
+        assertThat(post0.getId()).isEqualTo(1);
     }
 
 

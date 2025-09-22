@@ -23,6 +23,8 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author gongjun[jun.gong@thebeastshop.com]
@@ -35,6 +37,8 @@ public class HttpclientForestResponse extends ForestResponse {
     private volatile HttpEntity entity;
 
     private volatile byte[] bytes;
+
+    private final Lock lock = new ReentrantLock();
     
 
     public HttpclientForestResponse(ForestRequest request, HttpResponse httpResponse, HttpEntity entity, Date requestTime, Date responseTime) {
@@ -73,15 +77,18 @@ public class HttpclientForestResponse extends ForestResponse {
     @Override
     public String getContent() {
         if (content == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (content == null) {
+                    setupContent();
                     if (entity != null) {
-                        setupContent();
                         this.contentLength = entity.getContentLength();
-                    } else {
+                    } else if (content == null) {
                         this.content = "";
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return content;
@@ -173,6 +180,9 @@ public class HttpclientForestResponse extends ForestResponse {
     private String readContentAsString() {
         try  {
             bytes = getByteArray();
+            if (bytes == null) {
+                return null;
+            }
             return byteToString(bytes);
         } catch (IOException e) {
             throw new ForestRuntimeException(e);
