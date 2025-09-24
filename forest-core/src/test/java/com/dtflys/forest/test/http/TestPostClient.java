@@ -20,6 +20,8 @@ import com.dtflys.forest.test.http.model.JsonTestUser3;
 import com.dtflys.forest.test.http.model.JsonTestUser4;
 import com.dtflys.forest.test.http.model.UserParam;
 import com.dtflys.forest.utils.Base64Utils;
+import com.dtflys.forest.utils.URLEncoder;
+import com.dtflys.forest.utils.URLUtils;
 import com.google.common.collect.Lists;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -29,7 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1046,7 +1048,9 @@ public class TestPostClient extends BaseClientTest {
                 .assertMethodEquals("POST")
                 .assertPathEquals("/form-array")
                 .assertHeaderEquals("Content-Type", "application/x-www-form-urlencoded")
-                .assertBodyEquals("username=foo&password=123456&idList=1,2,3&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
+                .assertBodyEquals("username=foo&password=123456&idList=" +
+                        URLEncoder.FORM_VALUE.encode("1,2,3", StandardCharsets.UTF_8) +
+                        "&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
     }
 
     @Test
@@ -1072,7 +1076,9 @@ public class TestPostClient extends BaseClientTest {
                 .assertMethodEquals("POST")
                 .assertPathEquals("/form-array")
                 .assertHeaderEquals("Content-Type", "application/x-www-form-urlencoded")
-                .assertBodyEquals("username=foo&password=123456&idList=1,2,3&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
+                .assertBodyEquals("username=foo&password=123456&idList=" +
+                        URLEncoder.FORM_VALUE.encode("1,2,3", StandardCharsets.UTF_8) +
+                        "&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
     }
 
     @Test
@@ -1093,7 +1099,9 @@ public class TestPostClient extends BaseClientTest {
                 .assertMethodEquals("POST")
                 .assertPathEquals("/form-array")
                 .assertHeaderEquals("Content-Type", "application/x-www-form-urlencoded")
-                .assertBodyEquals("username=foo&password=123456&idList=1,2,3&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
+                .assertBodyEquals("username=foo&password=123456&idList=" +
+                        URLEncoder.FORM_VALUE.encode("1,2,3", StandardCharsets.UTF_8) +
+                        "&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
     }
 
     @Test
@@ -1118,7 +1126,9 @@ public class TestPostClient extends BaseClientTest {
                 .assertMethodEquals("POST")
                 .assertPathEquals("/form-array")
                 .assertHeaderEquals("Content-Type", "application/x-www-form-urlencoded")
-                .assertBodyEquals("username=foo&password=123456&idList=1,2,3&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
+                .assertBodyEquals("username=foo&password=123456&idList=" +
+                        URLEncoder.FORM_VALUE.encode("1,2,3", StandardCharsets.UTF_8) +
+                        "&cause[0].id=1&cause[0].score=87&cause[1].id=2&cause[1].score=73");
     }
 
     @Test
@@ -1144,9 +1154,9 @@ public class TestPostClient extends BaseClientTest {
                 .assertMethodEquals("POST")
                 .assertPathEquals("/form-array")
                 .assertHeaderEquals("Content-Type", "application/x-www-form-urlencoded")
-                .assertBodyEquals("param={\"username\":\"" +
-                        URLEncoder.encode("中文名", "UTF-8") +
-                        "\",\"password\":\"123456\",\"idList\":[1,2,3],\"cause\":[{\"id\":1,\"score\":87},{\"id\":2,\"score\":73}]}");
+                .assertBodyEquals("param=" +
+                        URLEncoder.FORM_VALUE.encode("{\"username\":\"中文名\",\"password\":\"123456\",\"idList\":[1,2,3],\"cause\":[{\"id\":1,\"score\":87},{\"id\":2,\"score\":73}]}",
+                                StandardCharsets.UTF_8));
     }
 
 

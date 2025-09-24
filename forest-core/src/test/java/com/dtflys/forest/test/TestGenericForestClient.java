@@ -23,8 +23,6 @@ import com.dtflys.forest.interceptor.Interceptor;
 import com.dtflys.forest.interceptor.InterceptorChain;
 import com.dtflys.forest.interceptor.ResponseResult;
 import com.dtflys.forest.logging.LogConfiguration;
-import com.dtflys.forest.mapping.MappingTemplate;
-import com.dtflys.forest.reflection.ForestVariable;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.retryer.NoneRetryer;
 import com.dtflys.forest.sse.SSELinesMode;
@@ -243,7 +241,7 @@ public class TestGenericForestClient extends BaseClientTest {
                 .execute(String.class);
         mockRequest(server)
                 .assertPathEquals("/")
-                .assertBodyEquals("key=https://www.baidu.com#/?modeversion%3Dminiprogram%26sourceCode%3DGDT-ID-23310731%26mark%3DXZX-WXZF-0805");
+                .assertBodyEquals("key=https%3A%2F%2Fwww.baidu.com%23%2F%3Fmodeversion%3Dminiprogram%26sourceCode%3DGDT-ID-23310731%26mark%3DXZX-WXZF-0805");
     }
 
     public static interface TestClient {
