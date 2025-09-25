@@ -1511,15 +1511,15 @@ public class TestGenericForestClient extends BaseClientTest {
         Forest.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
-                .contentTypeJson()
+                .contentType("application/json; charset=utf-8")
                 .addBody("{testVar2}")
                 .execute();
 
         mockRequest(server)
                 .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
                 .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
     }
-
 
     @Test
     public void testRequest_template_in_string_body() {
@@ -1531,7 +1531,7 @@ public class TestGenericForestClient extends BaseClientTest {
         Forest.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
-                .contentTypeJson()
+                .contentType("application/json")
                 .addBody("{testVar2}")
                 .var("a", "foo")
                 .var("b", "bar")

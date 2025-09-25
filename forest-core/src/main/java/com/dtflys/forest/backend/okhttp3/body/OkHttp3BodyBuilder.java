@@ -166,15 +166,22 @@ public class OkHttp3BodyBuilder extends AbstractBodyBuilder<Request.Builder> {
             final String contentType,
             final byte[] bytes,
             boolean mergeCharset) {
-        final String ctype = StringUtils.isEmpty(contentType) ? ContentType.APPLICATION_OCTET_STREAM : contentType;
-        MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(ctype, key -> MediaType.parse(ctype));
-        final Charset mtcs = mediaType.charset();
-        if (mtcs == null && charset != null && mergeCharset) {
-            final String newCType = ctype + ";charset=" + charset;
-            mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(newCType,
-                    key -> MediaType.parse(newCType));
+        final String reqContentType = request.getContentType();
+        if (StringUtils.isNotBlank(reqContentType) && reqContentType.contains(";")) {
+            final MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(reqContentType, key -> MediaType.parse(reqContentType));
+            final RequestBody body = RequestBody.create(mediaType, bytes);
+            builder.method(request.getType().getName(), body);
+        } else {
+            final String ctype = StringUtils.isEmpty(contentType) ? ContentType.APPLICATION_OCTET_STREAM : contentType;
+            MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(ctype, key -> MediaType.parse(ctype));
+            final Charset mtcs = mediaType.charset();
+            if (mtcs == null && charset != null && mergeCharset) {
+                final String newCType = ctype + ";charset=" + charset;
+                mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(newCType,
+                        key -> MediaType.parse(newCType));
+            }
+            final RequestBody body = RequestBody.create(mediaType, bytes);
+            builder.method(request.getType().getName(), body);
         }
-        final RequestBody body = RequestBody.create(mediaType, bytes);
-        builder.method(request.getType().getName(), body);
     }
 }

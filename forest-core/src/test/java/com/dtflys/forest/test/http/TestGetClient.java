@@ -199,6 +199,27 @@ public class TestGetClient extends BaseClientTest {
                 .removeVariable("accept");
     }
 
+    @Test
+    public void test_okhttp() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        Request.Builder builder = new Request.Builder();
+        Request request = builder.url("http://localhost:" + server.getPort() + "/abc")
+                .header("Content-Type", "application/json; charset=utf-8")
+                .method("POST", RequestBody.create(mediaType, "{}".getBytes(StandardCharsets.UTF_8)))
+                .build();
+        Call call = client.newCall(request);
+        try {
+            Response response = call.execute();
+            response.body().close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        mockRequest(server)
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8");
+    }
+
 
 //    @Test
     public void performance_okhttp() {
