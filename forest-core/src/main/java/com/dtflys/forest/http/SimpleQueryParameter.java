@@ -48,6 +48,11 @@ public class SimpleQueryParameter extends AbstractQueryParameter<SimpleQueryPara
         this(queries, name, value, false, null);
     }
 
+    public SimpleQueryParameter(ForestQueryMap queries, String name, Object value, boolean fromUrl) {
+        this(queries, name, value, fromUrl, false, null);
+    }
+
+
     public SimpleQueryParameter(ForestQueryMap queries, String name, Object value, Boolean urlencoded, String charset) {
         this(queries, name, value, false, urlencoded, charset);
     }
@@ -68,6 +73,11 @@ public class SimpleQueryParameter extends AbstractQueryParameter<SimpleQueryPara
     public SimpleQueryParameter(ForestQueryMap queries, String name) {
         this(queries, name, null, false, null);
     }
+
+    public SimpleQueryParameter(ForestQueryMap queries, String name, boolean fromUrl) {
+        this(queries, name, null, fromUrl, false, null);
+    }
+
 
 
     @Override

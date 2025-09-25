@@ -244,13 +244,6 @@ public class TestGenericForestClient extends BaseClientTest {
                 .assertBodyEquals("key=https%3A%2F%2Fwww.baidu.com%23%2F%3Fmodeversion%3Dminiprogram%26sourceCode%3DGDT-ID-23310731%26mark%3DXZX-WXZF-0805");
     }
 
-    public static interface TestClient {
-
-        @Post("http://172.29.231.232:4433/predictions/spell")
-        String post(@Var("port") int port, @Body("text") String text);
-
-    }
-
 
     @Test
     public void testRequest_query_encode2() {

@@ -138,9 +138,9 @@ public class MappingURLTemplate extends MappingTemplate {
                             // 可能是第一个查询参数
                             String[] keyValue = lastQueryPartVal.split("=", 2);
                             if (keyValue.length == 1) {
-                                lastQuery = new SimpleQueryParameter(queries, lastQueryPartVal);
+                                lastQuery = new SimpleQueryParameter(queries, lastQueryPartVal, true);
                             } else {
-                                lastQuery = new SimpleQueryParameter(queries, keyValue[0], keyValue[1]);
+                                lastQuery = new SimpleQueryParameter(queries, keyValue[0], keyValue[1], true);
                             }
                             queries.addQuery(lastQuery);
                         }
@@ -150,9 +150,9 @@ public class MappingURLTemplate extends MappingTemplate {
                         String queryItem = subQueries[k];
                         String[] keyValue = queryItem.split("=", 2);
                         if (keyValue.length == 1) {
-                            lastQuery = new SimpleQueryParameter(queries, queryItem);
+                            lastQuery = new SimpleQueryParameter(queries, queryItem, true);
                         } else {
-                            lastQuery = new SimpleQueryParameter(queries, keyValue[0]);
+                            lastQuery = new SimpleQueryParameter(queries, keyValue[0], true);
                             String queryVal = keyValue[1];
                             if (StringUtils.isNotBlank(queryVal)) {
                                 lastQuery.setValue(queryVal);
@@ -287,7 +287,7 @@ public class MappingURLTemplate extends MappingTemplate {
                         if (queryItems.length > 0) {
                             for (String queryItem : queryItems) {
                                 String[] keyValue = queryItem.split("=", 2);
-                                lastQuery = new SimpleQueryParameter(queries, keyValue[0]);
+                                lastQuery = new SimpleQueryParameter(queries, keyValue[0], true);
                                 queries.addQuery(lastQuery);
                                 if (keyValue.length > 1 && StringUtils.isNotBlank(keyValue[1])) {
                                     lastQuery.setValue(keyValue[1]);

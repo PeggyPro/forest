@@ -80,7 +80,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testNotAutoRedirect_301() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(301));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -91,17 +91,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(301);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().getPath()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_302() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(302));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -111,17 +112,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(302);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().getPath()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_303() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(303));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -132,17 +134,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(303);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().getPath()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_304() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(304));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -153,17 +156,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(304);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().getPath()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_305() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(305));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -174,17 +178,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(305);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().getPath()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_306() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(306));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -195,17 +200,18 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(306);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
     @Test
     public void testNotAutoRedirect_307() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(307));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -216,11 +222,12 @@ public class TestBaseRedirectClient extends BaseClientTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(307);
         assertThat(response.isRedirection()).isTrue();
-        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b");
+        assertThat(response.getRedirectionLocation()).isEqualTo("http://localhost:" + server.getPort() + "/b?a=foo&b=bar");
         String result = response.redirectionRequest().execute(String.class);
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().getQueryString()).isEqualTo("a=foo&b=bar");
     }
 
 
@@ -231,7 +238,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_301() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(301));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -240,6 +247,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -249,7 +257,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_302() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(302));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -258,6 +266,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -267,7 +276,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_303() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(303));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -276,6 +285,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -285,7 +295,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_304() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(304));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -294,6 +304,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -303,7 +314,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_305() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(305));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -312,6 +323,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -321,7 +333,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_306() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(306));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -330,6 +342,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
@@ -339,7 +352,7 @@ public class TestBaseRedirectClient extends BaseClientTest {
     @Test
     public void testAutoRedirect_307() {
         server.enqueue(new MockResponse()
-                .addHeader("Location", "http://localhost:" + server.getPort() + "/b")
+                .addHeader("Location", "http://localhost:" + server.getPort() + "/b?a=foo&b=bar")
                 .setResponseCode(307));
         server.enqueue(new MockResponse().setBody(EXPECTED));
         AtomicReference<ForestRequest> atomicReq = new AtomicReference<>(null);
@@ -348,12 +361,12 @@ public class TestBaseRedirectClient extends BaseClientTest {
         }));
         assertThat(atomicReq.get()).isNotNull();
         assertThat(atomicReq.get().path()).isEqualTo("/b");
+        assertThat(atomicReq.get().queryString()).isEqualTo("a=foo&b=bar");
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(200);
         String result = response.getResult();
         assertThat(result).isNotNull().isEqualTo(EXPECTED);
     }
-
 
 
     /**

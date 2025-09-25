@@ -176,7 +176,7 @@ public class ForestURL implements MappingListener {
             forestURL.needUrlRegenerate = true;
             forestURL.variablesChanged = true;
             if (request != null) {
-                urlTemplate.render(forestURL, request, request.arguments(), forestURL.query);
+                urlTemplate.render(forestURL, request, request.arguments(), request.getQuery());
             }
             return forestURL;
         }
