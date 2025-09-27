@@ -186,32 +186,27 @@ public class ResultHandler {
                 }
                 else {
                     try {
-                        responseText = optStringValue != null ? optStringValue : response.getContent();
+                        responseText = optStringValue != null ? optStringValue : null;
                     } catch (Throwable th) {
                         request.getLifeCycleHandler().handleError(request, (ForestResponse) response, th);
                     }
                 }
-                response.setContent(responseText);
+//                if (responseText != null) {
+//                    response.setContent(responseText);
+//                }
                 if (InputStream.class.isAssignableFrom(resultClass)) {
                     return response.getInputStream();
                 }
                 final ContentType contentType = response.getContentType();
                 final ForestConverter decoder = request.getDecoder();
-                if (decoder != null) {
-                    if (contentType != null && contentType.canReadAsString()) {
-                        return decoder.convertToJavaObject(responseText, resultType);
-                    } else {
-                        final String charset = response.getCharset();
-                        return decoder.convertToJavaObject(
-                                response.getByteArray(), resultType, Charset.forName(Optional.ofNullable(charset).orElse("UTF-8")));
-                    }
-                } else if (CharSequence.class.isAssignableFrom(resultClass)) {
+
+                if (responseText != null && CharSequence.class.isAssignableFrom(resultClass)) {
                     return responseText;
                 }
 
                 final ForestDataType dataType = request.getDataType();
                 final ForestConverter converter = decoder != null ? decoder : request.getConfiguration().getConverter(dataType);
-                if (contentType != null && contentType.canReadAsString()) {
+                if (responseText != null && contentType != null && contentType.canReadAsString()) {
                     return converter.convertToJavaObject(responseText, resultType);
                 }
                 Charset charset = null; 
@@ -222,8 +217,11 @@ public class ResultHandler {
                 if (optStringValue != null) {
                     return converter.convertToJavaObject(optStringValue.getBytes(StandardCharsets.UTF_8), resultType, charset);
                 }
+
                 try (InputStream inputStream = response.getInputStream()) {
                     return converter.convertToJavaObject(inputStream, resultType, charset);
+                } finally {
+                    response.close();
                 }
             } catch (Exception e) {
                 throw new ForestHandlerException(e, request, (ForestResponse) response);

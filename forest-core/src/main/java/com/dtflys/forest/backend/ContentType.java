@@ -25,6 +25,9 @@ public class ContentType {
     private final String type;
 
     private final String subType;
+    
+   
+    private String rawCharset;
 
     private Charset charset;
 
@@ -64,6 +67,7 @@ public class ContentType {
                         final String charsetValue = expr[1].trim().replace("\"", "");
                         if (StringUtils.isNotEmpty(charsetValue)) {
                             this.hasDefinedCharset = true;
+                            this.rawCharset = charsetValue;
                             this.charset = Charset.forName(charsetValue);
                         }
                     }
@@ -75,13 +79,13 @@ public class ContentType {
         }
     }
 
-
     public String getType() {
         return type;
     }
 
-    public String getSubType() {
-        return subType;
+
+    public String getRawCharset() {
+        return rawCharset;
     }
 
     public Charset getCharset() {

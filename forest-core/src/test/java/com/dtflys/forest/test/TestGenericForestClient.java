@@ -23,8 +23,6 @@ import com.dtflys.forest.interceptor.Interceptor;
 import com.dtflys.forest.interceptor.InterceptorChain;
 import com.dtflys.forest.interceptor.ResponseResult;
 import com.dtflys.forest.logging.LogConfiguration;
-import com.dtflys.forest.mapping.MappingTemplate;
-import com.dtflys.forest.reflection.ForestVariable;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.retryer.NoneRetryer;
 import com.dtflys.forest.sse.SSELinesMode;
@@ -136,11 +134,6 @@ public class TestGenericForestClient extends BaseClientTest {
         }
     }
 
-    @Test
-    public void testForestVersion() {
-        System.out.println(Forest.VERSION);
-    }
-
 
     @Test
     public void testRequest_url() throws MalformedURLException {
@@ -248,14 +241,7 @@ public class TestGenericForestClient extends BaseClientTest {
                 .execute(String.class);
         mockRequest(server)
                 .assertPathEquals("/")
-                .assertBodyEquals("key=https://www.baidu.com#/?modeversion%3Dminiprogram%26sourceCode%3DGDT-ID-23310731%26mark%3DXZX-WXZF-0805");
-    }
-
-    public static interface TestClient {
-
-        @Post("http://172.29.231.232:4433/predictions/spell")
-        String post(@Var("port") int port, @Body("text") String text);
-
+                .assertBodyEquals("key=https%3A%2F%2Fwww.baidu.com%23%2F%3Fmodeversion%3Dminiprogram%26sourceCode%3DGDT-ID-23310731%26mark%3DXZX-WXZF-0805");
     }
 
 
@@ -1525,15 +1511,15 @@ public class TestGenericForestClient extends BaseClientTest {
         Forest.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
-                .contentTypeJson()
+                .contentType("application/json; charset=utf-8")
                 .addBody("{testVar2}")
                 .execute();
 
         mockRequest(server)
                 .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
                 .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
     }
-
 
     @Test
     public void testRequest_template_in_string_body() {
@@ -1545,7 +1531,7 @@ public class TestGenericForestClient extends BaseClientTest {
         Forest.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
-                .contentTypeJson()
+                .contentType("application/json")
                 .addBody("{testVar2}")
                 .var("a", "foo")
                 .var("b", "bar")
@@ -1828,6 +1814,76 @@ public class TestGenericForestClient extends BaseClientTest {
         assertThat(result2).isNotNull();
     }
 
+    @Test
+    public void testRequest_contentType_with_charset() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json; charset=utf-8")
+                .addBody("{\"a\": \"foo\", \"b\": \"bar\"}")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
+                .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset2() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json;charset=utf-8")
+                .addBody("{\"a\": \"foo\", \"b\": \"bar\"}")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json;charset=utf-8")
+                .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset3() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json; charset=utf-8")
+                .addBody("a", "foo")
+                .addBody("b", "bar")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
+                .assertBodyEquals("{\"a\":\"foo\",\"b\":\"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset4() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json;charset=utf-8")
+                .addBody("a", "foo")
+                .addBody("b", "bar")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json;charset=utf-8")
+                .assertBodyEquals("{\"a\":\"foo\",\"b\":\"bar\"}");
+    }
+
 
 /*
     @Test
@@ -2055,6 +2111,18 @@ public class TestGenericForestClient extends BaseClientTest {
         assertThat(nums).isEqualTo(Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
     }
 
+    @Test
+    public void testRequest_unclosed_response_get_string() {
+        server.enqueue(new MockResponse().setBody("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"));
+        UnclosedResponse response = Forest.get("http://localhost:{}", server.getPort())
+                .executeAsUnclosedResponse();
+        assertThat(response).isNotNull();
+        assertThat(response.isClosed()).isFalse();
+        String nums = response.get(String.class);
+        assertThat(response.isClosed()).isTrue();
+        assertThat(nums).isNotNull();
+        assertThat(nums).isEqualTo("[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    }
 
 
     @Test
@@ -2127,6 +2195,79 @@ public class TestGenericForestClient extends BaseClientTest {
         assertThat(user2.getAge()).isEqualTo(10);
         assertThat(user2.getEmail()).isEqualTo("foo@bar.com");
     }
+
+    public static class MyPost {
+        private Long userId;
+        private Long id;
+        private String title;
+        private String body;
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public void setUserId(Long userId) {
+            this.userId = userId;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getBody() {
+            return body;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+    }
+
+
+    @Test
+    public void testRequest_get_return_genericType() {
+        server.enqueue(new MockResponse().setBody("[\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 1,\n" +
+                "    \"title\": \"sunt aut facere repellat provident occaecati excepturi optio reprehenderit\",\n" +
+                "    \"body\": \"quia et suscipit\\nsuscipit recusandae consequuntur expedita et cum\\nreprehenderit molestiae ut ut quas totam\\nnostrum rerum est autem sunt rem eveniet architecto\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 2,\n" +
+                "    \"title\": \"qui est esse\",\n" +
+                "    \"body\": \"est rerum tempore vitae\\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\\nqui aperiam non debitis possimus qui neque nisi nulla\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"userId\": 1,\n" +
+                "    \"id\": 3,\n" +
+                "    \"title\": \"ea molestias quasi exercitationem repellat qui ipsa sit aut\",\n" +
+                "    \"body\": \"et iusto sed quo iure\\nvoluptatem occaecati omnis eligendi aut ad\\nvoluptatem doloribus vel accusantium quis pariatur\\nmolestiae porro eius odio et labore et velit aut\"\n" +
+                "  }\n" +
+                "]"));
+        List<MyPost> posts = Forest.get("http://{}:{}/posts", server.getHostName(), server.getPort())
+                .execute(new TypeReference<List<MyPost>>() {});
+        assertThat(posts).isNotNull();
+        assertThat(posts.size()).isEqualTo(3);
+        MyPost post0 = posts.get(0);
+        assertThat(post0).isNotNull();
+        assertThat(post0.getUserId()).isEqualTo(1);
+        assertThat(post0.getId()).isEqualTo(1);
+    }
+
 
 
     @Test

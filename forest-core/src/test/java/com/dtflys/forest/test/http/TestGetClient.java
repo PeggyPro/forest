@@ -3,20 +3,17 @@ package com.dtflys.forest.test.http;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.annotation.LogEnabled;
 import com.dtflys.forest.annotation.Post;
 import com.dtflys.forest.backend.ContentType;
-import com.dtflys.forest.backend.HttpBackend;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.http.ForestURL;
 import com.dtflys.forest.http.UnclosedResponse;
-import com.dtflys.forest.test.http.backend.BackendClient;
 import com.dtflys.forest.test.http.client.GetClient;
 import com.dtflys.forest.test.http.client.PostClient;
 import com.dtflys.forest.test.http.client.UrlEncodedClient;
@@ -35,7 +32,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -202,7 +198,6 @@ public class TestGetClient extends BaseClientTest {
                 .removeVariable("username")
                 .removeVariable("accept");
     }
-
 
 //    @Test
     public void performance_okhttp() {
@@ -416,7 +411,7 @@ public class TestGetClient extends BaseClientTest {
 
 
     @Test
-    public void testJsonMapGetWithJsonResponse() throws InterruptedException {
+    public void testJsonMapGetWithJsonResponse() {
         server.enqueue(
                 new MockResponse()
                         .setHeader("Content-Type", "application/json")

@@ -139,12 +139,18 @@ public class TestLog extends BaseClientTest {
                 "\t\tContent-Type: application/json\n" +
                 "\tBody: " + EXPECTED));
         verify(logger).info(eq("[Forest] Response: Status = 200, Time = " + response.getTimeAsMillisecond() + "ms"));
+    }
+
+    @Test
+    public void testLogRequestHeaders_content2() {
+        ForestLogger logger = Mockito.spy(new ForestSlf4jLogger(TestLog.class));
+        DefaultLogHandler logHandler = new DefaultLogHandler(logger);
 
         server.enqueue(new MockResponse()
                 .setBody(EXPECTED)
                 .setResponseCode(200));
 
-        configuration.post("/test")
+        ForestResponse response = configuration.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
                 .addHeader("Content-Type", "application/json")
@@ -159,6 +165,7 @@ public class TestLog extends BaseClientTest {
                 "\tBody: " + EXPECTED));
         verify(logger).info(eq("[Forest] Response: Status = 200, Time = " + response.getTimeAsMillisecond() + "ms"));
     }
+
 
     @Test
     public void testLogRequestBody_content() {
@@ -185,12 +192,18 @@ public class TestLog extends BaseClientTest {
                 "\t\tContent-Type: application/json\n" +
                 "\tBody: " + EXPECTED));
         verify(logger).info(eq("[Forest] Response: Status = 200, Time = " + response.getTimeAsMillisecond() + "ms"));
+    }
+
+    @Test
+    public void testLogRequestBody_content2() {
+        ForestLogger logger = Mockito.spy(new ForestSlf4jLogger(TestLog.class));
+        DefaultLogHandler logHandler = new DefaultLogHandler(logger);
 
         server.enqueue(new MockResponse()
                 .setBody(EXPECTED)
                 .setResponseCode(200));
 
-        configuration.post("/test")
+        ForestResponse response = configuration.post("/test")
                 .host(server.getHostName())
                 .port(server.getPort())
                 .addHeader("Content-Type", "application/json")
@@ -208,6 +221,7 @@ public class TestLog extends BaseClientTest {
                 "\t\tContent-Type: application/json"));
         verify(logger).info(eq("[Forest] Response: Status = 200, Time = " + response.getTimeAsMillisecond() + "ms"));
     }
+
 
     @Test
     public void testLogRequestLineOnly() {

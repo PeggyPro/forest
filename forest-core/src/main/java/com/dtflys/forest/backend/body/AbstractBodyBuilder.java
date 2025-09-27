@@ -46,7 +46,7 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
         if (encoder != null) {
             byte[] bodyBytes = request.body().encode(encoder, charset);
             bodyBytes = lifeCycleHandler.handleBodyEncode(request, encoder, bodyBytes);
-            setBinaryBody(httpRequest, request, charsetName, ctypeWithoutParams, bodyBytes, mergeCharset);
+            setBinaryBody(httpRequest, request, charsetName, ctypeWithoutParams, mineContentType, bodyBytes, mergeCharset);
             return;
         }
 
@@ -74,7 +74,7 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
             }
             byte[] bodyBytes = reqBody.encode(bodyEncoder, charset);
             bodyBytes = lifeCycleHandler.handleBodyEncode(request, bodyEncoder, bodyBytes);
-            setBinaryBody(httpRequest, request, charsetName, ctypeWithoutParams, bodyBytes, mergeCharset);
+            setBinaryBody(httpRequest, request, charsetName, ctypeWithoutParams, mineContentType, bodyBytes, mergeCharset);
         }
     }
 
@@ -90,9 +90,9 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
     public void setBody(T httpReq, ForestRequest request, byte[] bytes, String charset, String contentType, boolean mergeCharset) {
         if (charset != null) {
             String text = new String(bytes, Charset.forName(charset));
-            setStringBody(httpReq, request, text, charset, contentType, mergeCharset);
+            setStringBody(httpReq, request, text, charset, request.mineContentType(), contentType, mergeCharset);
         } else {
-            setBinaryBody(httpReq, request, charset, contentType, bytes, mergeCharset);
+            setBinaryBody(httpReq, request, charset, contentType, request.mineContentType(), bytes, mergeCharset);
         }
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
      * @param contentType 数据类型
      * @param mergeCharset 是否合并字符集
      */
-    protected abstract void setStringBody(T httpReq, ForestRequest request, String text, String charset, String contentType, boolean mergeCharset);
+    protected abstract void setStringBody(T httpReq, ForestRequest request, String text, String charset, ContentType mineContentType, String contentType, boolean mergeCharset);
 
 
     /**
@@ -123,14 +123,15 @@ public abstract class AbstractBodyBuilder<T> implements BodyBuilder<T> {
      * @param httpReq 后端请求对象
      * @param request Forest请求对象
      * @param charset 字符集
-     * @param contentType 数据类型
+     * @param contentTypeWithoutParams 不带参数的ContentType
      * @param bytes 字节数组
      * @param mergeCharset 合并的字符集
      */
     protected abstract void setBinaryBody(T httpReq,
                                  ForestRequest request,
                                  String charset,
-                                 String contentType,
+                                 String contentTypeWithoutParams,
+                                 ContentType mineContentType,
                                  byte[] bytes,
                                  boolean mergeCharset);
 

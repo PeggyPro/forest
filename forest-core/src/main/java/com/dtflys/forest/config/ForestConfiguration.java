@@ -90,6 +90,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -379,6 +381,10 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     private volatile ForestRequestPool pool;
 
+    /**
+     * ForestConfiguration类内部锁
+     */
+    private final Lock lock = new ReentrantLock();
 
     /**
      * Forest异步请求线程池
@@ -386,6 +392,7 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      * @since 1.5.29
      */
     volatile ThreadPoolExecutor asyncPool;
+
 
 
     /**
@@ -552,10 +559,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public HttpBackend getBackend() {
         if (backend == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (backend == null) {
                     setupBackend();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return backend;
@@ -622,10 +632,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public ForestObjectFactory getForestObjectFactory() {
         if (forestObjectFactory == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (forestObjectFactory == null) {
                     forestObjectFactory = new DefaultObjectFactory();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return forestObjectFactory;
@@ -687,10 +700,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public InterceptorFactory getInterceptorFactory() {
         if (interceptorFactory == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (interceptorFactory == null) {
                     interceptorFactory = new DefaultInterceptorFactory();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return interceptorFactory;
@@ -714,10 +730,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public ForestProperties getProperties() {
         if (properties == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (properties == null) {
                     properties = new ForestProperties();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return properties;
@@ -1908,10 +1927,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public ForestCookieStorage getCookieStorage() {
         if (cookieStorage == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (cookieStorage == null) {
                     cookieStorage = new MemoryCookieStorage(cookiesStorageMaxSize);
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return cookieStorage;
@@ -1948,10 +1970,13 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public ForestRequestPool getPool() {
         if (pool == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (pool == null) {
                     pool = new FixedRequestPool(this);
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return pool;
@@ -1974,7 +1999,8 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      */
     public ForestCache<String, Object> getBackendClientCache() {
         if (backendClientCache == null) {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (backendClientCache == null) {
                     final Duration expireTime = getBackendClientCacheExpireTime();
                     if (expireTime != null) {
@@ -1983,6 +2009,8 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
                         backendClientCache = new ForestCache<>(getBackendClientCacheMaxSize(), 6, TimeUnit.HOURS);
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         }
         return backendClientCache;
