@@ -1814,6 +1814,76 @@ public class TestGenericForestClient extends BaseClientTest {
         assertThat(result2).isNotNull();
     }
 
+    @Test
+    public void testRequest_contentType_with_charset() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json; charset=utf-8")
+                .addBody("{\"a\": \"foo\", \"b\": \"bar\"}")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
+                .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset2() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json;charset=utf-8")
+                .addBody("{\"a\": \"foo\", \"b\": \"bar\"}")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json;charset=utf-8")
+                .assertBodyEquals("{\"a\": \"foo\", \"b\": \"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset3() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json; charset=utf-8")
+                .addBody("a", "foo")
+                .addBody("b", "bar")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json; charset=utf-8")
+                .assertBodyEquals("{\"a\":\"foo\",\"b\":\"bar\"}");
+    }
+
+    @Test
+    public void testRequest_contentType_with_charset4() {
+        server.enqueue(new MockResponse().setBody(EXPECTED));
+
+        Forest.post("/test")
+                .host(server.getHostName())
+                .port(server.getPort())
+                .contentType("application/json;charset=utf-8")
+                .addBody("a", "foo")
+                .addBody("b", "bar")
+                .execute();
+
+        mockRequest(server)
+                .assertPathEquals("/test")
+                .assertHeaderEquals("Content-Type", "application/json;charset=utf-8")
+                .assertBodyEquals("{\"a\":\"foo\",\"b\":\"bar\"}");
+    }
+
 
 /*
     @Test

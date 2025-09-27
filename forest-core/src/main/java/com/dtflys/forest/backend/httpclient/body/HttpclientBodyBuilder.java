@@ -34,7 +34,14 @@ public class HttpclientBodyBuilder<T extends HttpEntityEnclosingRequestBase> ext
 
 
     @Override
-    protected void setStringBody(T httpReq, ForestRequest request, String text, String charset, String contentType, boolean mergeCharset) {
+    protected void setStringBody(
+            T httpReq,
+            ForestRequest request,
+            String text,
+            String charset,
+            com.dtflys.forest.backend.ContentType mineContentType,
+            String contentType,
+            boolean mergeCharset) {
         StringEntity entity = new StringEntity(text, charset);
         if (charset == null && mergeCharset) {
             if (!contentType.contains("charset=")) {
@@ -148,22 +155,22 @@ public class HttpclientBodyBuilder<T extends HttpEntityEnclosingRequestBase> ext
     protected void setBinaryBody(T httpReq,
                                  ForestRequest request,
                                  String charset,
-                                 String contentType,
+                                 String contentTypeWithoutParams,
+                                 final com.dtflys.forest.backend.ContentType mineContentType,
                                  byte[] bytes,
                                  boolean mergeCharset) {
-
-        if (StringUtils.isBlank(contentType)) {
-            contentType = ContentType.APPLICATION_OCTET_STREAM.toString();
+        if (StringUtils.isBlank(contentTypeWithoutParams) ) {
+            contentTypeWithoutParams = ContentType.APPLICATION_OCTET_STREAM.toString();
         }
         if (charset == null && mergeCharset) {
-            if (!contentType.contains("charset=")) {
-                contentType = contentType + ";charset=" + charset;
+            if (!contentTypeWithoutParams.contains("charset=")) {
+                contentTypeWithoutParams = contentTypeWithoutParams + ";charset=" + charset;
             } else {
-                String[] strs = contentType.split("charset=");
-                contentType = strs[0] + "charset=" + charset;
+                String[] strs = contentTypeWithoutParams.split("charset=");
+                contentTypeWithoutParams = strs[0] + "charset=" + charset;
             }
         }
-        ContentType ctype = ContentType.create(contentType, charset);
+        ContentType ctype = ContentType.create(contentTypeWithoutParams, charset);
         HttpEntity entity = new ByteArrayEntity(bytes, ctype);
         httpReq.setEntity(entity);
     }

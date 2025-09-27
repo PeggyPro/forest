@@ -37,7 +37,16 @@ public class OkHttp3BodyBuilder extends AbstractBodyBuilder<Request.Builder> {
     private final static Map<String, MediaType> MEDIA_TYPE_CACHE = new ConcurrentHashMap<>();
 
     @Override
-    protected void setStringBody(Request.Builder builder, ForestRequest request, String text, String charset, String contentType, boolean mergeCharset) {
+    protected void setStringBody(Request.Builder builder, ForestRequest request, String text, String charset, ContentType mineContentType, String contentType, boolean mergeCharset) {
+        final String rawContentType = request.getContentType();
+        if (StringUtils.isBlank(rawContentType) && mineContentType.isHasDefinedCharset()) {
+            final Charset reqCharset = mineContentType.getCharset();
+            final byte[] bytes = text.getBytes(reqCharset);
+            final MediaType mediaType = MediaType.parse(rawContentType);
+            final RequestBody body = RequestBody.create(mediaType, bytes);
+            builder.method(request.getType().getName(), body);
+            return;
+        }
         MediaType mediaType = MediaType.parse(contentType);
         final Charset cs = charset != null ? Charset.forName(charset) : StandardCharsets.UTF_8;
         if (contentType != null) {
@@ -163,16 +172,17 @@ public class OkHttp3BodyBuilder extends AbstractBodyBuilder<Request.Builder> {
             final Request.Builder builder,
             final ForestRequest request,
             final String charset,
-            final String contentType,
+            final String contentTypeWithoutParams,
+            final ContentType mineContentType,
             final byte[] bytes,
             boolean mergeCharset) {
-        final String reqContentType = request.getContentType();
-        if (StringUtils.isNotBlank(reqContentType) && reqContentType.contains(";")) {
-            final MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(reqContentType, key -> MediaType.parse(reqContentType));
+        final String rawContentType = request.getContentType();
+        if (StringUtils.isNotBlank(rawContentType) && mineContentType.isHasDefinedCharset()) {
+            final MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(rawContentType, key -> MediaType.parse(rawContentType));
             final RequestBody body = RequestBody.create(mediaType, bytes);
             builder.method(request.getType().getName(), body);
         } else {
-            final String ctype = StringUtils.isEmpty(contentType) ? ContentType.APPLICATION_OCTET_STREAM : contentType;
+            final String ctype = StringUtils.isEmpty(contentTypeWithoutParams) ? ContentType.APPLICATION_OCTET_STREAM : contentTypeWithoutParams;
             MediaType mediaType = MEDIA_TYPE_CACHE.computeIfAbsent(ctype, key -> MediaType.parse(ctype));
             final Charset mtcs = mediaType.charset();
             if (mtcs == null && charset != null && mergeCharset) {
