@@ -8,6 +8,7 @@ import com.dtflys.forest.exceptions.ForestNetworkException;
 import com.dtflys.forest.http.ForestAsyncMode;
 import com.dtflys.forest.http.ForestFuture;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.retryer.BackOffRetryer;
 import com.dtflys.forest.test.http.client.GetClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 15:02
  */
-public class TestAsyncGetClient extends BaseClientTest {
+public class TestAsyncGetClient extends ForestClientTest {
 
     private final static Logger log = LoggerFactory.getLogger(TestAsyncGetClient.class);
 

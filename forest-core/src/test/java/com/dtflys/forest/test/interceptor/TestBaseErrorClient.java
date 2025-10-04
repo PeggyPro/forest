@@ -2,7 +2,7 @@ package com.dtflys.forest.test.interceptor;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TestBaseErrorClient extends BaseClientTest {
+public class TestBaseErrorClient extends ForestClientTest {
 
     private static ForestConfiguration configuration;
 

@@ -7,7 +7,7 @@ import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.exceptions.ForestAbortException;
 import com.dtflys.forest.pool.ForestRequestPool;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestPoolClient extends BaseClientTest {
+public class TestPoolClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

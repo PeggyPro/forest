@@ -3,7 +3,7 @@ package com.dtflys.forest.test.http.retry;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.exceptions.ForestRuntimeException;
 import com.dtflys.forest.http.ForestRequest;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author gongjun[dt_flys@hotmail.com]
  * @since 2021-09-16 22:25
  */
-public class TestSuccessWhenClient extends BaseClientTest {
+public class TestSuccessWhenClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"error\"}";
 

@@ -2,7 +2,7 @@ package com.dtflys.forest.test.http.cookie;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestCookieClient extends BaseClientTest {
+public class TestCookieClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"1\", \"data\":\"2\"}";
 

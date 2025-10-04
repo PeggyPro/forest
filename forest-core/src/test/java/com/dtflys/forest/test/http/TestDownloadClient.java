@@ -1,16 +1,13 @@
 package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.Forest;
-import com.dtflys.forest.annotation.Request;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.interceptor.ResponseResult;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.DownloadClient;
-import com.dtflys.forest.test.http.model.UserParam;
 import com.dtflys.forest.utils.ForestProgress;
 import com.dtflys.forest.utils.TypeReference;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
@@ -26,9 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,13 +32,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 /**
  * @author gongjun[dt_flys@hotmail.com]
  * @since 2020-08-05 22:40
  */
-public class TestDownloadClient extends BaseClientTest {
+public class TestDownloadClient extends ForestClientTest {
 
     @Rule
     public MockWebServer server = new MockWebServer();

@@ -3,7 +3,7 @@ package com.dtflys.forest.test.http.retry;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.retryer.BackOffRetryer;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestRetryerClient extends BaseClientTest {
+public class TestRetryerClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"error\"}";
 

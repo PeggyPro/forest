@@ -3,7 +3,7 @@ package com.dtflys.forest.test.interceptor;
 import com.dtflys.forest.http.ForestHeader;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.logging.ForestLogger;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.test.http.TestGetClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-18 16:57
  */
-public class TestInterceptor extends BaseClientTest {
+public class TestInterceptor extends ForestClientTest {
 
     private final static Logger log = LoggerFactory.getLogger(TestGetClient.class);
 

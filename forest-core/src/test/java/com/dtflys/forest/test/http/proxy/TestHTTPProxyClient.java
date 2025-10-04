@@ -3,7 +3,7 @@ package com.dtflys.forest.test.http.proxy;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestProxyType;
 import com.dtflys.forest.http.ForestRequest;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -17,7 +17,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @version v1.0
  * @since 2021-12-17
  */
-public class TestHTTPProxyClient extends BaseClientTest {
+public class TestHTTPProxyClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

@@ -3,6 +3,7 @@ package com.dtflys.forest.test.http;
 import com.dtflys.forest.annotation.Get;
 import com.dtflys.forest.annotation.HTTPProxy;
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -12,7 +13,7 @@ import org.junit.Test;
  * @author tanglingyan[xiao4852@qq.com]
  * @since 2022-06-09 14:29
  */
-public class TestHttpClientHttpProxy extends BaseClientTest {
+public class TestHttpClientHttpProxy extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

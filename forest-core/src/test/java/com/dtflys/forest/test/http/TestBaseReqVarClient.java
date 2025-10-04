@@ -1,6 +1,7 @@
 package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.BaseReqAddressClient;
 import com.dtflys.forest.test.http.client.BaseReqVarClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @Date: 2023/9/14 9:42
  * @Version 1.0
  */
-public class TestBaseReqVarClient extends BaseClientTest {
+public class TestBaseReqVarClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

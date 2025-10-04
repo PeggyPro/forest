@@ -2,6 +2,7 @@ package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.HeadClient;
 import com.dtflys.forest.test.model.TestHeaders;
 import okhttp3.mockwebserver.MockResponse;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 17:50
  */
-public class TestHeadClient extends BaseClientTest {
+public class TestHeadClient extends ForestClientTest {
 
     @Rule
     public MockWebServer server = new MockWebServer();

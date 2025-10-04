@@ -6,9 +6,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dtflys.forest.Forest;
-import com.dtflys.forest.annotation.Body;
-import com.dtflys.forest.annotation.Post;
-import com.dtflys.forest.annotation.Var;
 import com.dtflys.forest.auth.BasicAuth;
 import com.dtflys.forest.auth.BearerAuth;
 import com.dtflys.forest.backend.ContentType;
@@ -26,7 +23,6 @@ import com.dtflys.forest.logging.LogConfiguration;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.retryer.NoneRetryer;
 import com.dtflys.forest.sse.SSELinesMode;
-import com.dtflys.forest.test.http.BaseClientTest;
 import com.dtflys.forest.test.http.model.UserParam;
 import com.dtflys.forest.test.model.Contact;
 import com.dtflys.forest.test.model.Result;
@@ -81,7 +77,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-public class TestGenericForestClient extends BaseClientTest {
+public class TestGenericForestClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"1\", \"data\":\"2\"}";
 
@@ -4166,7 +4162,7 @@ public class TestGenericForestClient extends BaseClientTest {
                 "id:3\n" +
                 "event:json\n" +
                 "data:{\"name\": \"c\", \"age\": 9}\n"
-        ));
+        ).throttleBody(64, 1, TimeUnit.SECONDS));
 
         final StringBuffer buffer = new StringBuffer();
 

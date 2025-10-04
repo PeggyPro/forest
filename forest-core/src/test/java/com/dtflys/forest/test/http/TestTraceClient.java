@@ -2,6 +2,7 @@ package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.TraceClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 18:26
  */
-public class TestTraceClient extends BaseClientTest {
+public class TestTraceClient extends ForestClientTest {
 
     @Rule
     public MockWebServer server = new MockWebServer();

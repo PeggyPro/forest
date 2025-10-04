@@ -1,7 +1,7 @@
 package com.dtflys.forest.test.sub;
 
 import com.dtflys.forest.config.ForestConfiguration;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[dt_flys@hotmail.com]
  * @since 2021-09-19 2:55
  */
-public class TestSubClient extends BaseClientTest {
+public class TestSubClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

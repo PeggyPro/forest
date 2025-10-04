@@ -7,7 +7,7 @@ import com.dtflys.forest.converter.json.ForestGsonConverter;
 import com.dtflys.forest.converter.json.ForestJacksonConverter;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.utils.ForestDataType;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestEncoderClient extends BaseClientTest {
+public class TestEncoderClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

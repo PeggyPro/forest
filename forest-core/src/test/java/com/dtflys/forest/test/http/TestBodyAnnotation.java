@@ -5,6 +5,7 @@ import com.dtflys.forest.annotation.Body;
 import com.dtflys.forest.annotation.Post;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.mock.MockServerRequest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -19,7 +20,7 @@ import java.lang.reflect.Field;
  * @author tanglingyan[xiao4852@qq.com]
  * @since 2022-06-04 10:57
  */
-public class TestBodyAnnotation extends BaseClientTest {
+public class TestBodyAnnotation extends ForestClientTest {
 
     private static ForestConfiguration configuration;
     @Rule

@@ -14,6 +14,7 @@ import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.http.ForestURL;
 import com.dtflys.forest.http.UnclosedResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.GetClient;
 import com.dtflys.forest.test.http.client.PostClient;
 import com.dtflys.forest.test.http.client.UrlEncodedClient;
@@ -57,7 +58,7 @@ import static org.junit.Assert.assertNotNull;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 15:02
  */
-public class TestGetClient extends BaseClientTest {
+public class TestGetClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
     private static final Logger log = LoggerFactory.getLogger(TestGetClient.class);

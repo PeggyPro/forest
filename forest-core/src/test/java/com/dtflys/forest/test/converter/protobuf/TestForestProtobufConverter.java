@@ -1,7 +1,7 @@
 package com.dtflys.forest.test.converter.protobuf;
 
 import com.dtflys.forest.config.ForestConfiguration;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.ProtobufClient;
 import com.dtflys.forest.test.mock.ProtobufMockServer;
 import com.google.common.io.BaseEncoding;
@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockserver.junit.MockServerRule;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ import static org.junit.Assert.*;
  * @author YAKAX
  * @since 2020/12/18 21:11
  **/
-public class TestForestProtobufConverter extends BaseClientTest {
+public class TestForestProtobufConverter extends ForestClientTest {
 
     @Rule
     public ProtobufMockServer server = new ProtobufMockServer(this);
