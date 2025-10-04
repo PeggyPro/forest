@@ -65,7 +65,8 @@ public class HttpclientForestResponse extends ForestResponse {
                 setupContentEncoding();
                 //响应文本的字符串编码
                 setupResponseCharset();
-                if (autoClosable && !request.isReceiveStream()) {
+                final boolean responseStream = contentType != null ? contentType.isStream() : false;
+                if (autoClosable && !request.isReceiveStream() && !responseStream) {
                     readContentAsString();
                 }
             }

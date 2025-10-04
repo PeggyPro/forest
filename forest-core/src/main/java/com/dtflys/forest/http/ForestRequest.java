@@ -77,6 +77,7 @@ import com.dtflys.forest.pool.ForestRequestPool;
 import com.dtflys.forest.reflection.ForestMethod;
 import com.dtflys.forest.reflection.ForestVariable;
 import com.dtflys.forest.reflection.MethodLifeCycleHandler;
+import com.dtflys.forest.result.ResultTypeHandler;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.ssl.SSLKeyStore;
 import com.dtflys.forest.ssl.SSLSocketFactoryBuilder;
@@ -4485,27 +4486,34 @@ public class ForestRequest<T> extends AbstractVariableScope<ForestRequest<T>> im
         }
         final Type resultType = getLifeCycleHandler().getResultType();
         final Class<?> resultClass = ReflectUtils.toClass(resultType);
-        if (InputStream.class.isAssignableFrom(resultClass)) {
-            return true;
-        }
-        final boolean isResultResponse = ForestResponse.class.isAssignableFrom(resultClass);
-        final boolean isResultOptional = Optional.class.isAssignableFrom(resultClass);
         
-        if (isResultResponse || isResultOptional) {
-            ParameterizedType parameterizedType = ReflectUtils.toParameterizedType(resultType);
-            if (parameterizedType != null) {
-                final Type argType = parameterizedType.getActualTypeArguments()[0];
-                final Class<?> argClass = ReflectUtils.toClass(argType);
-                if (InputStream.class.isAssignableFrom(argClass)) {
-                    return true;
-                }
-                if (Object.class.equals(argClass) && isResultResponse) {
-                    return true;
-                }
-            } else if (isResultResponse) {
-                return false;
+        final List<ResultTypeHandler> handlers = configuration.getResultTypeHandlerManager().getHandlers();
+        for (ResultTypeHandler handler : handlers) {
+            if (handler.matchType(resultClass, resultType)) {
+                return handler.isReceiveStream(resultClass, resultType);
             }
         }
+//        if (InputStream.class.isAssignableFrom(resultClass)) {
+//            return true;
+//        }
+//        final boolean isResultResponse = ForestResponse.class.isAssignableFrom(resultClass);
+//        final boolean isResultOptional = Optional.class.isAssignableFrom(resultClass);
+//        
+//        if (isResultResponse || isResultOptional) {
+//            ParameterizedType parameterizedType = ReflectUtils.toParameterizedType(resultType);
+//            if (parameterizedType != null) {
+//                final Type argType = parameterizedType.getActualTypeArguments()[0];
+//                final Class<?> argClass = ReflectUtils.toClass(argType);
+//                if (InputStream.class.isAssignableFrom(argClass)) {
+//                    return true;
+//                }
+//                if (Object.class.equals(argClass) && isResultResponse) {
+//                    return true;
+//                }
+//            } else if (isResultResponse) {
+//                return false;
+//            }
+//        }
         return false;
     }
 

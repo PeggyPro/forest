@@ -1,6 +1,7 @@
 package com.dtflys.forest.backend.httpclient.request;
 
 import com.dtflys.forest.backend.AbstractHttpExecutor;
+import com.dtflys.forest.backend.ContentType;
 import com.dtflys.forest.backend.httpclient.conn.HttpclientConnectionManager;
 import com.dtflys.forest.backend.httpclient.response.HttpclientForestResponseFactory;
 import com.dtflys.forest.backend.httpclient.response.HttpclientResponseHandler;
@@ -140,7 +141,9 @@ public class SyncHttpclientRequestSender extends AbstractHttpclientRequestSender
                 throw new ForestRuntimeException(ex);
             }
         } finally {
-            if (response.isAutoClosable() && !request.isReceiveStream()) {
+            final ContentType responseContentType = response.getContentType();
+            final boolean responseStream = responseContentType != null && responseContentType.isStream();
+            if (response.isAutoClosable() && !request.isReceiveStream() && !responseStream) {
                 response.close();
             }
         }

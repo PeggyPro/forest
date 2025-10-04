@@ -3,14 +3,17 @@ package com.dtflys.forest.handler;
 import com.dtflys.forest.backend.ContentType;
 import com.dtflys.forest.converter.ForestConverter;
 import com.dtflys.forest.exceptions.ForestHandlerException;
+import com.dtflys.forest.result.ByteArrayResultHandler;
+import com.dtflys.forest.result.FutureResultHandler;
+import com.dtflys.forest.result.InputStreamResultHandler;
+import com.dtflys.forest.result.ResponseResultHandler;
+import com.dtflys.forest.result.ResultTypeHandler;
+import com.dtflys.forest.result.ResultTypeHandlerManager;
+import com.dtflys.forest.result.SSEResultHandler;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
-import com.dtflys.forest.http.ForestSSE;
 import com.dtflys.forest.http.Res;
-import com.dtflys.forest.http.UnclosedResponse;
 import com.dtflys.forest.lifecycles.file.DownloadLifeCycle;
-import com.dtflys.forest.reflection.MethodLifeCycleHandler;
-import com.dtflys.forest.sse.ForestSSEListener;
 import com.dtflys.forest.utils.ForestDataType;
 import com.dtflys.forest.utils.ReflectUtils;
 
@@ -20,8 +23,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Future;
 
 /**
  * @author gongjun[jun.gong@thebeastshop.com]
@@ -121,54 +124,12 @@ public class ResultHandler {
                 if (void.class.isAssignableFrom(resultClass) || Void.class.isAssignableFrom(resultClass)) {
                     return null;
                 }
-                // 处理特殊泛型类型 （Res, ForestRequest, Optional）
-                if (Res.class.isAssignableFrom(resultClass)
-                        || ForestRequest.class.isAssignableFrom(resultClass)
-                        || Optional.class.isAssignableFrom(resultClass)) {
-                    if (resultType instanceof ParameterizedType) {
-                        final ParameterizedType parameterizedType = (ParameterizedType) resultType;
-                        final Class<?> rowClass = (Class<?>) parameterizedType.getRawType();
-                        if (Res.class.isAssignableFrom(rowClass)
-                                || ForestRequest.class.isAssignableFrom(resultClass)
-                                || Optional.class.isAssignableFrom(rowClass)) {
-                            
-                            final Type realType = parameterizedType.getActualTypeArguments()[0];
-                            Class<?> realClass = ReflectUtils.toClass(parameterizedType.getActualTypeArguments()[0]);
-                            if (realClass == null) {
-                                realClass = String.class;
-                            }
-                            if (!(UnclosedResponse.class.isAssignableFrom(rowClass))) {
-                                final Object realResult = getResult(resultOpt, request, response, realType, realClass);
-                                response.setResult(realResult);
-                            }
-                            
-                        }
-                    }
-                    return response;
-                }
-                if (Future.class.isAssignableFrom(resultClass)) {
-                    if (resultType instanceof ParameterizedType) {
-                        final ParameterizedType parameterizedType = (ParameterizedType) resultType;
-                        final Class<?> rowClass = (Class<?>) parameterizedType.getRawType();
-                        if (Future.class.isAssignableFrom(rowClass)) {
-                            final Type realType = parameterizedType.getActualTypeArguments()[0];
-                            final Class<?> realClass = ReflectUtils.toClass(parameterizedType.getActualTypeArguments()[0]);
-                            if (realClass == null) {
-                                return ((MethodLifeCycleHandler<?>) request.getLifeCycleHandler()).getResultData();
-                            }
-                            return getResult(resultOpt, request, response, realType, realClass);
-                        }
-                    }
-                }
-                if (ForestSSEListener.class.isAssignableFrom(resultClass)) {
-                    if (ForestSSE.class.equals(resultClass)) {
-                        return request.sse();
-                    }
-                    return request.sse(resultClass);
-                }
-                if (resultClass.isArray()) {
-                    if (byte[].class.isAssignableFrom(resultClass)) {
-                        return response.getByteArray();
+                // 处理特殊类型
+                final ResultTypeHandlerManager resultTypeHandlerManager = request.getConfiguration().getResultTypeHandlerManager();
+                final List<ResultTypeHandler> resultTypeHandlers = resultTypeHandlerManager.getHandlers();
+                for (final ResultTypeHandler resultTypeHandler : resultTypeHandlers) {
+                    if (resultTypeHandler.matchType(resultClass, resultType)) {
+                        return resultTypeHandler.getResult(resultOpt, request, response, resultType, resultClass, this);
                     }
                 }
                 final Object attFile = request.getAttachment(DownloadLifeCycle.ATTACHMENT_NAME_FILE);
@@ -194,9 +155,9 @@ public class ResultHandler {
 //                if (responseText != null) {
 //                    response.setContent(responseText);
 //                }
-                if (InputStream.class.isAssignableFrom(resultClass)) {
-                    return response.getInputStream();
-                }
+//                if (InputStream.class.isAssignableFrom(resultClass)) {
+//                    return response.getInputStream();
+//                }
                 final ContentType contentType = response.getContentType();
                 final ForestConverter decoder = request.getDecoder();
 
