@@ -46,7 +46,7 @@ public class ResponseResultHandler implements ResultTypeHandler {
     }
 
     @Override
-    public boolean isReceiveStream(Class<?> resultClass, Type resultType) {
+    public boolean isStream(Class<?> resultClass, Type resultType) {
         final boolean isResultResponse = ForestResponse.class.isAssignableFrom(resultClass);
         final boolean isResultOptional = Optional.class.isAssignableFrom(resultClass);
 
@@ -66,5 +66,10 @@ public class ResponseResultHandler implements ResultTypeHandler {
             }
         }
         return false;
+    }
+
+    @Override
+    public Object of(Res res, Object rawData, Type targetType) {
+        return res;
     }
 }

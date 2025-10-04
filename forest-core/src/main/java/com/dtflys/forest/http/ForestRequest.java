@@ -24,7 +24,6 @@
 
 package com.dtflys.forest.http;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.lang.func.Consumer3;
 import com.dtflys.forest.auth.BasicAuth;
 import com.dtflys.forest.auth.ForestAuthenticator;
@@ -98,7 +97,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -4486,34 +4484,10 @@ public class ForestRequest<T> extends AbstractVariableScope<ForestRequest<T>> im
         }
         final Type resultType = getLifeCycleHandler().getResultType();
         final Class<?> resultClass = ReflectUtils.toClass(resultType);
-        
-        final List<ResultTypeHandler> handlers = configuration.getResultTypeHandlerManager().getHandlers();
-        for (ResultTypeHandler handler : handlers) {
-            if (handler.matchType(resultClass, resultType)) {
-                return handler.isReceiveStream(resultClass, resultType);
-            }
+        final ResultTypeHandler resultTypeHandler = configuration.getResultTypeHandlerManager().matchHandler(resultClass, resultType);
+        if (resultTypeHandler != null) {
+            return resultTypeHandler.isStream(resultClass, resultType);
         }
-//        if (InputStream.class.isAssignableFrom(resultClass)) {
-//            return true;
-//        }
-//        final boolean isResultResponse = ForestResponse.class.isAssignableFrom(resultClass);
-//        final boolean isResultOptional = Optional.class.isAssignableFrom(resultClass);
-//        
-//        if (isResultResponse || isResultOptional) {
-//            ParameterizedType parameterizedType = ReflectUtils.toParameterizedType(resultType);
-//            if (parameterizedType != null) {
-//                final Type argType = parameterizedType.getActualTypeArguments()[0];
-//                final Class<?> argClass = ReflectUtils.toClass(argType);
-//                if (InputStream.class.isAssignableFrom(argClass)) {
-//                    return true;
-//                }
-//                if (Object.class.equals(argClass) && isResultResponse) {
-//                    return true;
-//                }
-//            } else if (isResultResponse) {
-//                return false;
-//            }
-//        }
         return false;
     }
 

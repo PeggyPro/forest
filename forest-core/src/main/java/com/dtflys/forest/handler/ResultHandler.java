@@ -126,12 +126,11 @@ public class ResultHandler {
                 }
                 // 处理特殊类型
                 final ResultTypeHandlerManager resultTypeHandlerManager = request.getConfiguration().getResultTypeHandlerManager();
-                final List<ResultTypeHandler> resultTypeHandlers = resultTypeHandlerManager.getHandlers();
-                for (final ResultTypeHandler resultTypeHandler : resultTypeHandlers) {
-                    if (resultTypeHandler.matchType(resultClass, resultType)) {
-                        return resultTypeHandler.getResult(resultOpt, request, response, resultType, resultClass, this);
-                    }
+                final ResultTypeHandler resultTypeHandler = resultTypeHandlerManager.matchHandler(resultClass, resultType);
+                if (resultTypeHandler != null) {
+                    return resultTypeHandler.getResult(resultOpt, request, response, resultType, resultClass, this);
                 }
+                
                 final Object attFile = request.getAttachment(DownloadLifeCycle.ATTACHMENT_NAME_FILE);
                 if (attFile != null && attFile instanceof File) {
                     final ForestConverter converter = request.getConfiguration().getConverter(ForestDataType.JSON);

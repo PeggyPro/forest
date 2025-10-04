@@ -25,7 +25,15 @@ public class SSEResultHandler implements ResultTypeHandler {
     }
 
     @Override
-    public boolean isReceiveStream(Class<?> resultClass, Type resultType) {
+    public boolean isStream(Class<?> resultClass, Type resultType) {
         return true;
+    }
+
+    @Override
+    public Object of(Res res, Object rawData, Type targetType) {
+        if (rawData instanceof ForestSSE) {
+            return rawData;
+        }
+        return null;
     }
 }

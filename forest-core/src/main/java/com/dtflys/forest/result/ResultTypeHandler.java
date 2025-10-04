@@ -13,5 +13,7 @@ public interface ResultTypeHandler {
     
     Object getResult(Optional<?> resultOpt, ForestRequest request, Res response, Type resultType, Class resultClass, ResultHandler resultHandler) throws Exception;
     
-    boolean isReceiveStream(Class<?> resultClass, Type resultType);
+    boolean isStream(Class<?> resultClass, Type resultType);
+    
+    Object of(Res res, Object rawData, Type targetType);
 }

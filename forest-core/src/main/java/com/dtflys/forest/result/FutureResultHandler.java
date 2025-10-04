@@ -9,6 +9,7 @@ import com.dtflys.forest.utils.ReflectUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class FutureResultHandler implements ResultTypeHandler {
@@ -35,7 +36,12 @@ public class FutureResultHandler implements ResultTypeHandler {
     }
 
     @Override
-    public boolean isReceiveStream(Class<?> resultClass, Type resultType) {
+    public boolean isStream(Class<?> resultClass, Type resultType) {
         return false;
+    }
+
+    @Override
+    public Object of(Res res, Object rawData, Type targetType) {
+        return CompletableFuture.completedFuture(rawData);
     }
 }
