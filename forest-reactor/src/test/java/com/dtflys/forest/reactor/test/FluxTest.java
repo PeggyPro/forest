@@ -2,7 +2,8 @@ package com.dtflys.forest.reactor.test;
 
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.config.ForestConfiguration;
-import com.dtflys.forest.reactor.sse.ForestReactorSSE;
+import com.dtflys.forest.reactor.sse.ReactorSSE;
+import com.dtflys.forest.sse.SSELinesMode;
 import com.dtflys.forest.utils.TypeReference;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -67,7 +68,6 @@ public class FluxTest extends ForestClientTest {
     public void testFlux_sse_toFlux() {
         int len = "{\"name\": \"a\"}\n".getBytes().length;
         server.enqueue(new MockResponse().setResponseCode(200)
-                .setHeader("Content-Type", "text/event-stream")
                 .setBody(
                         "{\"name\": \"a\"}\n" +
                         "{\"name\": \"b\"}\n" +
@@ -77,24 +77,26 @@ public class FluxTest extends ForestClientTest {
                         "{\"name\": \"f\"}\n"
                 ).throttleBody(len, 1, TimeUnit.SECONDS));
         StringBuffer buffer = new StringBuffer();
+        
         Forest.get("http://localhost:{}", server.getPort())
-                .sse(ForestReactorSSE.class)
+                .sse(ReactorSSE.class)
                 .setOnMessage((event, sink) -> {
                     final MyName myName = event.value(MyName.class);
                     sink.next(myName);
                 })
                 .toFlux(MyName.class)
                 .subscribe(myName -> {
-                    System.out.println("name -> " + myName.getName());
                     buffer.append("name -> " + myName.getName() + "\n");
+                    System.out.println("name -> " + myName.getName());
                 });
+                
         assertThat(buffer.toString()).isEqualTo(
                 "name -> a\n" +
                 "name -> b\n" +
                 "name -> c\n" +
                 "name -> d\n" +
                 "name -> e\n" +
-                "name -> f\n"                        
+                "name -> f\n"
         );
     }
 
