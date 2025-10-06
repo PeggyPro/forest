@@ -3972,7 +3972,50 @@ public class TestGenericForestClient extends ForestClientTest {
                 "SSE Close"
         );
     }
-    
+
+    @Test
+    public void testSSE_subscribe() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "data:start\n" +
+                "data:hello\n" +
+                "event:ignore\n" +
+                "event:close\n" +
+                "data:dont show"
+        ));
+        StringBuffer buffer = new StringBuffer();
+
+        Forest.get("http://localhost:{}/sse", server.getPort())
+                .sse()
+                .setOnOpen(eventSource -> {
+                    buffer.append("SSE Open\n");
+                })
+                .setOnClose(eventSource -> {
+                    buffer.append("SSE Close");
+                })
+                .addOnData((eventSource, name, value, sink) -> {
+                    buffer.append("Receive data: ").append(value).append("\n");
+                    sink.next(value);
+                })
+                .addOnEventMatchesPrefix("close", (eventSource, name, value, sink) -> {
+                    buffer.append("Receive event: ").append(value).append("\n");
+                    sink.next(value);
+                    eventSource.close();
+                })
+                .listen(data -> {
+                    System.out.println("subscribe: " + data);
+                });
+        System.out.println(buffer);
+
+        assertThat(buffer.toString()).isEqualTo(
+                "SSE Open\n" +
+                        "Receive data: start\n" +
+                        "Receive data: hello\n" +
+                        "Receive event: close\n" +
+                        "SSE Close"
+        );
+    }
+
+
 
     @Test
     public void testAsyncSSE() {

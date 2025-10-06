@@ -16,12 +16,18 @@ import com.dtflys.forest.sse.SSEDefaultMessageFactory;
 import com.dtflys.forest.sse.SSELinesMode;
 import com.dtflys.forest.sse.SSEEventList;
 import com.dtflys.forest.sse.SSEMessageConsumer;
+import com.dtflys.forest.sse.SSEMessageConsumerWithSink;
 import com.dtflys.forest.sse.SSEMessageFactory;
 import com.dtflys.forest.sse.SSEMessageMethod;
 import com.dtflys.forest.sse.SSEMessageResult;
 import com.dtflys.forest.sse.SSEOnMessage;
+import com.dtflys.forest.sse.SSEOnMessageWithSink;
+import com.dtflys.forest.sse.SSESink;
 import com.dtflys.forest.sse.SSEState;
 import com.dtflys.forest.sse.SSEStringMessageConsumer;
+import com.dtflys.forest.sse.SSEStringMessageConsumerWithSink;
+import com.dtflys.forest.sse.sink.ConsumerSink;
+import com.dtflys.forest.sse.sink.EmptySink;
 import com.dtflys.forest.utils.ForestDataType;
 import com.dtflys.forest.utils.ReflectUtils;
 import com.dtflys.forest.utils.StringUtils;
@@ -50,20 +56,20 @@ import java.util.function.Function;
  * @since 1.6.0
  */
 public class ForestSSE implements ForestSSEListener<ForestSSE> {
-    
-    private volatile SSEState state = SSEState.INITIALIZED;
 
-    private ForestRequest<InputStream> request;
+    protected volatile SSEState state = SSEState.INITIALIZED;
 
-    private Consumer<EventSource> onOpenConsumer;
+    protected ForestRequest<InputStream> request;
 
-    private Consumer<EventSource> onCloseConsumer;
+    protected Consumer<EventSource> onOpenConsumer;
 
-    private Map<String, List<SSEStringMessageConsumer>> consumerMap = new ConcurrentHashMap<>();
-    
-    private SSEOnMessage onMessageConsumer;
-    
-    private SSEMessageFactory messageFactory;
+    protected Consumer<EventSource> onCloseConsumer;
+
+    protected Map<String, List<SSEStringMessageConsumerWithSink>> consumerMap = new ConcurrentHashMap<>();
+
+    protected SSEOnMessageWithSink onMessageConsumer;
+
+    protected SSEMessageFactory messageFactory;
     
     private volatile CompletableFuture<? extends ForestSSE> completableFuture;
 
@@ -191,9 +197,17 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      * @since 1.6.0
      */
     public ForestSSE addConsumer(String name, SSEStringMessageConsumer consumer) {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((event, n, v, sink) -> {
+            consumer.onMessage(event, n, v);
+        });
+        return this;
+    }
+
+    public ForestSSE addConsumer(String name, SSEStringMessageConsumerWithSink consumer) {
         consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add(consumer);
         return this;
     }
+
 
     /**
      * 添加通用类型 SSE 消费者
@@ -206,16 +220,29 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      * @since 1.6.0
      */
     public <T> ForestSSE addConsumer(String name, Class<T> valueType, SSEMessageConsumer<T> consumer) {
-        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((eventSource, n, v) -> {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((event, n, v, sink) -> {
             if (valueType.isAssignableFrom(CharSequence.class)) {
-                consumer.onMessage(eventSource, n, (T) String.valueOf(v));
+                consumer.onMessage(event, n, (T) String.valueOf(v));
             } else {
-                T encodedValue = eventSource.value(valueType);
-                consumer.onMessage(eventSource, n, encodedValue);
+                T encodedValue = event.value(valueType);
+                consumer.onMessage(event, n, encodedValue);
             }
         });
         return this;
     }
+
+    public <T> ForestSSE addConsumer(String name, Class<T> valueType, SSEMessageConsumerWithSink<T> consumer) {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((event, n, v, sink) -> {
+            if (valueType.isAssignableFrom(CharSequence.class)) {
+                consumer.onMessage(event, n, (T) String.valueOf(v), sink);
+            } else {
+                T encodedValue = event.value(valueType);
+                consumer.onMessage(event, n, encodedValue, sink);
+            }
+        });
+        return this;
+    }
+
 
     /**
      * 添加通用类型 SSE 消费者
@@ -228,7 +255,7 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      * @since 1.6.0
      */
     public <T> ForestSSE addConsumer(String name, TypeReference<T> valueType, SSEMessageConsumer<T> consumer) {
-        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((eventSource, n, v) -> {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add((eventSource, n, v, sink) -> {
             T encodedValue = (T) request.getConfiguration().getConverter(ForestDataType.AUTO).convertToJavaObject(v, valueType);
             consumer.onMessage(eventSource, n, encodedValue);
         });
@@ -246,9 +273,9 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      * @since 1.6.0
      */
     public ForestSSE addConsumer(String name, Function<EventSource, Boolean> matcher, SSEStringMessageConsumer consumer) {
-        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add(new SSEStringMessageConsumer() {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add(new SSEStringMessageConsumerWithSink() {
             @Override
-            public void onMessage(EventSource eventSource, String name, String value) {
+            public void onMessage(EventSource eventSource, String name, String value, SSESink sink) {
                 consumer.onMessage(eventSource, name, value);
             }
 
@@ -259,6 +286,23 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         });
         return this;
     }
+
+    public ForestSSE addConsumer(String name, Function<EventSource, Boolean> matcher, SSEStringMessageConsumerWithSink consumer) {
+        consumerMap.computeIfAbsent(name, k -> new CopyOnWriteArrayList<>()).add(new SSEStringMessageConsumerWithSink() {
+            @Override
+            public void onMessage(EventSource eventSource, String name, String value, SSESink sink) {
+                consumer.onMessage(eventSource, name, value, sink);
+            }
+
+            @Override
+            public boolean matches(EventSource eventSource) {
+                return matcher.apply(eventSource);
+            }
+        });
+
+        return this;
+    }
+
 
     /**
      * 添加匹配前缀的字符串类型 SSE 消费者
@@ -273,6 +317,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumer(name, eventSource -> eventSource.value().startsWith(valuePrefix), consumer);
     }
 
+    public ForestSSE addConsumerMatchesPrefix(String name, String valuePrefix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer(name, eventSource -> eventSource.value().startsWith(valuePrefix), consumer);
+    }
+
+
     /**
      * 添加匹配后缀的字符串类型 SSE 消费者
      * 
@@ -285,6 +334,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addConsumerMatchesPostfix(String name, String valuePostfix, SSEStringMessageConsumer consumer) {
         return addConsumer(name, eventSource -> eventSource.value().endsWith(valuePostfix), consumer);
     }
+
+    public ForestSSE addConsumerMatchesPostfix(String name, String valuePostfix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer(name, eventSource -> eventSource.value().endsWith(valuePostfix), consumer);
+    }
+
 
     /**
      * 添加带正则匹配的字符串类型 SSE 消费者
@@ -357,9 +411,17 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     }
 
     public ForestSSE setOnMessage(SSEOnMessage onMessageConsumer) {
+        this.onMessageConsumer = (event, sink) -> {
+            onMessageConsumer.onMessage(event);
+        };
+        return this;
+    }
+
+    public ForestSSE setOnMessage(SSEOnMessageWithSink onMessageConsumer) {
         this.onMessageConsumer = onMessageConsumer;
         return this;
     }
+
 
     /**
      * 添加监听 data 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 data 的消息时执行
@@ -371,6 +433,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnData(SSEStringMessageConsumer consumer) {
         return addConsumer("data", consumer);
     }
+
+    public ForestSSE addOnData(SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer("data", consumer);
+    }
+
 
     /**
      * 添加监听 data 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 data 的消息时执行，并且将值转换为给的类型的对象
@@ -385,6 +452,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumer("data", valueClass, consumer);
     }
 
+    public <T> ForestSSE addOnData(Class<T> valueClass, SSEMessageConsumerWithSink<T> consumer) {
+        return addConsumer("data", valueClass, consumer);
+    }
+
+
     /**
      * 添加匹配值前缀的监听 data 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 data 的消息，并且值能匹配给定前缀时才会执行
      * 
@@ -397,6 +469,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumerMatchesPrefix("data", valuePrefix, consumer);
     }
 
+    public ForestSSE addOnDataMatchesPrefix(String valuePrefix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPrefix("data", valuePrefix, consumer);
+    }
+
+    
     /**
      * 添加匹配值后缀的监听 data 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 data 的消息，并且值能匹配给定的后缀时才会执行
      * 
@@ -409,6 +486,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumerMatchesPostfix("data", valuePostfix, consumer);
     }
 
+    public ForestSSE addOnDataMatchesPostfix(String valuePostfix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPostfix("data", valuePostfix, consumer);
+    }
+
+
     /**
      * 添加监听 event 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 event 的消息时执行
      * 
@@ -419,6 +501,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnEvent(SSEStringMessageConsumer consumer) {
         return addConsumer("event", consumer);
     }
+
+    public ForestSSE addOnEvent(SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer("event", consumer);
+    }
+
 
     /**
      * 添加监听 event 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 event 的消息时执行，并且将值转换为给的类型的对象
@@ -433,6 +520,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumer("event", valueClass, consumer);
     }
 
+    public <T> ForestSSE addOnEvent(Class<T> valueClass, SSEMessageConsumerWithSink<T> consumer) {
+        return addConsumer("event", valueClass, consumer);
+    }
+
+
     /**
      * 添加匹配值前缀的监听 event 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 event 的消息，并且值能匹配给定前缀时才会执行
      *
@@ -444,6 +536,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnEventMatchesPrefix(String valuePrefix, SSEStringMessageConsumer consumer) {
         return addConsumerMatchesPrefix("event", valuePrefix, consumer);
     }
+
+    public ForestSSE addOnEventMatchesPrefix(String valuePrefix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPrefix("event", valuePrefix, consumer);
+    }
+
 
     /**
      * 添加匹配值后缀的监听 event 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 event 的消息，并且值能匹配给定的后缀时才会执行
@@ -457,6 +554,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumerMatchesPostfix("event", valuePostfix, consumer);
     }
 
+    public ForestSSE addOnEventMatchesPostfix(String valuePostfix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPostfix("event", valuePostfix, consumer);
+    }
+
+
     /**
      * 添加监听 id 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 id 的消息时执行
      * 
@@ -467,6 +569,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnId(SSEStringMessageConsumer consumer) {
         return addConsumer("id", consumer);
     }
+
+    public ForestSSE addOnId(SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer("id", consumer);
+    }
+
 
     /**
      * 添加监听 id 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 id 的消息时执行，并且将值转换为给的类型的对象
@@ -481,6 +588,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumer("id", valueClass, consumer);
     }
 
+    public <T> ForestSSE addOnId(Class<T> valueClass, SSEMessageConsumerWithSink<T> consumer) {
+        return addConsumer("id", valueClass, consumer);
+    }
+
+
     /**
      * 添加匹配值前缀的监听 id 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 id 的消息，并且值能匹配给定前缀时才会执行
      * 
@@ -492,6 +604,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnIdMatchesPrefix(String valuePrefix, SSEStringMessageConsumer consumer) {
         return addConsumerMatchesPrefix("id", valuePrefix, consumer);
     }
+
+    public ForestSSE addOnIdMatchesPrefix(String valuePrefix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPrefix("id", valuePrefix, consumer);
+    }
+
 
     /**
      * 添加匹配值后缀的监听 id 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 id 的消息，并且值能匹配给定的后缀时才会执行
@@ -505,6 +622,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumerMatchesPostfix("id", valuePostfix, consumer);
     }
 
+    public ForestSSE addOnIdMatchesPostfix(String valuePostfix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPostfix("id", valuePostfix, consumer);
+    }
+
+
     /**
      * 添加监听 retry 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 retry 的消息时执行
      * 
@@ -515,6 +637,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnRetry(SSEStringMessageConsumer consumer) {
         return addConsumer("retry", consumer);
     }
+
+    public ForestSSE addOnRetry(SSEStringMessageConsumerWithSink consumer) {
+        return addConsumer("retry", consumer);
+    }
+
 
     /**
      * 添加监听 retry 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 retry 的消息时执行，并且将值转换为给的类型的对象
@@ -529,6 +656,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumer("retry", valueClass, consumer);
     }
 
+    public <T> ForestSSE addOnRetry(Class<T> valueClass, SSEMessageConsumerWithSink<T> consumer) {
+        return addConsumer("retry", valueClass, consumer);
+    }
+
+
     /**
      * 添加匹配值后缀的监听 retry 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 retry 的消息，并且值能匹配给定的后缀时才会执行
      *
@@ -541,6 +673,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return addConsumerMatchesPrefix("retry", valuePrefix, consumer);
     }
 
+    public ForestSSE addOnRetryMatchesPrefix(String valuePrefix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPrefix("retry", valuePrefix, consumer);
+    }
+
+
     /**
      * 添加匹配值后缀的监听 retry 事件的回调函数: 该回调函数会在 SSE 监听到 name 为 retry 的消息，并且值能匹配给定的后缀时才会执行
      * 
@@ -552,7 +689,12 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public ForestSSE addOnRetryMatchesPostfix(String valuePostfix, SSEStringMessageConsumer consumer) {
         return addConsumerMatchesPostfix("retry", valuePostfix, consumer);
     }
-    
+
+    public ForestSSE addOnRetryMatchesPostfix(String valuePostfix, SSEStringMessageConsumerWithSink consumer) {
+        return addConsumerMatchesPostfix("retry", valuePostfix, consumer);
+    }
+
+
     private void doOnOpen(final EventSource eventSource) {
         final List<Interceptor> interceptors = eventSource.request().getInterceptorChain().getInterceptors();
         for (Interceptor interceptor : interceptors) {
@@ -605,23 +747,23 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     }
     
     
-    private void doOnReceiveEventSource(SSEEventList event, EventSource eventSource, String name, String value) {
-        final List<SSEStringMessageConsumer> consumers = consumerMap.get(name);
+    private void doOnReceiveEventSource(SSEEventList event, EventSource eventSource, String name, String value, SSESink sink) {
+        final List<SSEStringMessageConsumerWithSink> consumers = consumerMap.get(name);
         if (CollectionUtil.isEmpty(consumers)) {
             return;
         }
-        for (final SSEStringMessageConsumer consumer : consumers) {
+        for (final SSEStringMessageConsumerWithSink consumer : consumers) {
             if (!consumer.matches(eventSource)) {
                 continue;
             }
-            consumer.onMessage(eventSource, name, value);
+            consumer.onMessage(eventSource, name, value, sink);
             if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(eventSource.messageResult())) {
                 return;
             }
         }
     }
     
-    private void doOnMessage(EventSource eventSource, String name, String value) {
+    private void doOnMessage(EventSource eventSource, String name, String value, SSESink sink) {
         final List<Interceptor> interceptors = eventSource.request().getInterceptorChain().getInterceptors();
         for (Interceptor interceptor : interceptors) {
             if (interceptor instanceof SSEInterceptor) {
@@ -631,11 +773,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
             }
         }
 
-        onMessage(eventSource);
+        onMessage(eventSource, sink);
         onMessage(eventSource, name, value);
 
         if (onMessageConsumer != null) {
-            onMessageConsumer.onMessage(eventSource);
+            onMessageConsumer.onMessage(eventSource, sink);
             if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(eventSource.messageResult())) {
                 return;
             }
@@ -655,6 +797,12 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
     public void onMessage(EventSource event, String name, String value) {
     }
 
+    @Override
+    public void onMessage(EventSource event, String name, String value, SSESink sink) {
+        onMessage(event, name, value);
+    }
+
+
     /**
      * 消息回调函数：在接收到 SSE 消息后调用
      * 
@@ -663,6 +811,11 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      */
     public void onMessage(EventSource event) {
     }
+
+    public void onMessage(EventSource event, SSESink sink) {
+        onMessage(event);
+    }
+
 
     /**
      * 获取 Forest 请求对象
@@ -687,23 +840,24 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return messageFactory.createEventSource(eventList, this, response, line);
     }
     
-    private void decodeLines(final SSELinesMode mode, final ForestResponse<InputStream> response, final InputStream in, final String charset) {
+    private void decodeLines(final SSELinesMode mode, final ForestResponse<InputStream> response, final InputStream in, final String charset, final SSESink sink) {
         switch (mode) {
             case SINGLE_LINE:
-                decodeLinesWithSingleLineMode(response, in ,charset);
+                decodeLinesWithSingleLineMode(response, in ,charset, sink);
                 break;
             case MULTI_LINES:
-                decodeLinesWithMultiLinesMode(response, in ,charset);
+                decodeLinesWithMultiLinesMode(response, in ,charset, sink);
                 break;
             case AUTO:
-                decodeLinesWithAutoMode(response, in ,charset);
+                decodeLinesWithAutoMode(response, in ,charset, sink);
                 break;
         }
     }
     
-    protected void decodeLinesWithAutoMode(final ForestResponse<InputStream> response, final InputStream in, final String charset) {
+    protected void decodeLinesWithAutoMode(final ForestResponse<InputStream> response, final InputStream in, final String charset, final SSESink sink) {
         String line = null;
         EventSource lastEventSource = null;
+
 
         try {
             final InputStreamReader isr = new InputStreamReader(in, charset);
@@ -722,57 +876,57 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
             if (firstChar == '[' || firstChar == '{' || firstChar == '<' || firstChar == '"' || firstChar == '\'' ) {
                 if (StringUtils.isNotBlank(line)) {
                     final EventSource eventSource = parseEventSource(null, response, line);
-                    doOnMessage(eventSource, eventSource.name(), line);
-                    doOnReceiveEventSource(null, eventSource, eventSource.name(), eventSource.value());
+                    doOnMessage(eventSource, eventSource.name(), line, sink);
+                    doOnReceiveEventSource(null, eventSource, eventSource.name(), eventSource.value(), sink);
                     if (SSEState.LISTENING != state) {
                         return;
                     }
                 }
-                readSingleLine(response, reader);
+                readSingleLine(response, reader, sink);
             } else {
                 SSEEventList eventList = new SSEEventList(this, request, response);
                 if (StringUtils.isNotBlank(line)) {
                     final EventSource eventSource = parseEventSource(eventList, response, line);
-                    doOnReceiveEventSource(eventList, eventSource, eventSource.name(), eventSource.value());
+                    doOnReceiveEventSource(eventList, eventSource, eventSource.name(), eventSource.value(), sink);
                     lastEventSource = eventSource;
                     if (SSEState.LISTENING != state) {
                         return;
                     }
                 }
-                lastEventSource = readMultiLines(eventList, response, reader);
+                lastEventSource = readMultiLines(eventList, response, reader, sink);
             }
         } catch (IOException e) {
             throw new ForestRuntimeException(e);
         } finally {
             if (lastEventSource != null) {
-                doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.rawData());
+                doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.rawData(), sink);
             }
             final EventSource closeEventSource = new EventSource(null, this, "close", request, response);
             doOnClose(closeEventSource);
         }
     }
     
-    protected EventSource readMultiLines(SSEEventList eventList, final ForestResponse<InputStream> response, final BufferedReader reader) throws IOException {
+    protected EventSource readMultiLines(SSEEventList eventList, final ForestResponse<InputStream> response, final BufferedReader reader, SSESink sink) throws IOException {
         String line = null;
         EventSource lastEventSource = null;
         eventList = eventList == null ? new SSEEventList(this, request, response) : eventList;
         
         if (eventList.size() > SSEEventList.MAX_EVENTS_CAPACITY) {
-            readSingleLine(response, reader);
+            readSingleLine(response, reader, sink);
             return lastEventSource;
         }
         
         while ((line = reader.readLine()) != null) {
             if (StringUtils.isBlank(line)) {
                 if (lastEventSource != null) {
-                    doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.value());
+                    doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.value(), sink);
                     lastEventSource = null;
                     eventList = new SSEEventList(this, request, response);
                 }
                 continue;
             }
             final EventSource eventSource = parseEventSource(eventList, response, line);
-            doOnReceiveEventSource(eventList, eventSource, eventSource.name(), eventSource.value());
+            doOnReceiveEventSource(eventList, eventSource, eventSource.name(), eventSource.value(), sink);
             lastEventSource = eventSource;
             if (SSEState.LISTENING != state) {
                 break;
@@ -781,44 +935,44 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         return lastEventSource;
     }
 
-    protected void decodeLinesWithMultiLinesMode(final ForestResponse<InputStream> response, final InputStream in, final String charset) {
+    protected void decodeLinesWithMultiLinesMode(final ForestResponse<InputStream> response, final InputStream in, final String charset, final SSESink sink) {
         EventSource lastEventSource = null;
 
         try {
             final InputStreamReader isr = new InputStreamReader(in, charset);
             final BufferedReader reader = new BufferedReader(isr);
-            lastEventSource = readMultiLines(null, response, reader);
+            lastEventSource = readMultiLines(null, response, reader, sink);
         } catch (IOException e) {
             throw new ForestRuntimeException(e);
         } finally {
             if (lastEventSource != null) {
-                doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.rawData());
+                doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.rawData(), sink);
             }
             final EventSource closeEventSource = new EventSource(null, this, "close", request, response);
             doOnClose(closeEventSource);
         }
     }
     
-    protected void readSingleLine(final ForestResponse<InputStream> response, final BufferedReader reader) throws IOException {
+    protected void readSingleLine(final ForestResponse<InputStream> response, final BufferedReader reader, final SSESink sink) throws IOException {
         String line = null;
         while ((line = reader.readLine()) != null) {
             if (StringUtils.isBlank(line)) {
                 continue;
             }
             final EventSource eventSource = parseEventSource(null, response, line);
-            doOnMessage(eventSource, eventSource.name(), line);
-            doOnReceiveEventSource(null, eventSource, eventSource.name(), eventSource.value());
+            doOnMessage(eventSource, eventSource.name(), line, sink);
+            doOnReceiveEventSource(null, eventSource, eventSource.name(), eventSource.value(), sink);
             if (SSEState.LISTENING != state) {
                 break;
             }
         }
     }
 
-    protected void decodeLinesWithSingleLineMode(final ForestResponse<InputStream> response, final InputStream in, final String charset) {
+    protected void decodeLinesWithSingleLineMode(final ForestResponse<InputStream> response, final InputStream in, final String charset, final SSESink sink) {
         try {
             final InputStreamReader isr = new InputStreamReader(in, charset);
             final BufferedReader reader = new BufferedReader(isr);
-            readSingleLine(response, reader);
+            readSingleLine(response, reader, sink);
         } catch (IOException e) {
             throw new ForestRuntimeException(e);
         } finally {
@@ -836,7 +990,12 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      */
     @Override
     public <R extends ForestSSE> R listen() {
-        return listen(SSELinesMode.AUTO);
+        return listen(SSELinesMode.AUTO, null);
+    }
+
+    @Override
+    public <R extends ForestSSE> R listen(Consumer<Object> consumer) {
+        return listen(SSELinesMode.AUTO, consumer);
     }
 
     /**
@@ -846,13 +1005,15 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
      * @param <R> 自身类型
      * @since 1.6.4
      */
-    public <R extends ForestSSE> R listen(SSELinesMode mode) {
+    @Override
+    public <R extends ForestSSE> R listen(SSELinesMode mode, Consumer<Object> consumer) {
         final boolean isAsync = this.request.isAsync();
         state = SSEState.REQUESTING;
         ForestResponse<InputStream> response;
         if (messageFactory == null) {
             messageFactory = new SSEDefaultMessageFactory();
         }
+        final SSESink sink = consumer == null ? new EmptySink() : new ConsumerSink(consumer);
         if (isAsync) {
             try {
                 response = this.request.executeAsCompletableFuture(new TypeReference<ForestResponse<InputStream>>() {}).get();
@@ -888,7 +1049,7 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
         try {
             final String charset = Optional.ofNullable(response.getCharset()).orElse("UTF-8");
             response.openStream((in, res) -> {
-                decodeLines(mode, response, in, charset);
+                decodeLines(mode, response, in, charset, sink);
             });
         } catch (Exception e) {
             throw new ForestRuntimeException(e);

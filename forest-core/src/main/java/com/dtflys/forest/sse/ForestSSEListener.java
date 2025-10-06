@@ -3,8 +3,8 @@ package com.dtflys.forest.sse;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestSSE;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * Forest SSE 监听器
@@ -21,7 +21,7 @@ public interface ForestSSEListener<T extends ForestSSEListener<T>> extends SSESt
      * @since 1.6.0
      */
     ForestRequest getRequest();
-
+    
     /**
      * 开始对 SSE 事件流进行监听
      * 
@@ -30,6 +30,21 @@ public interface ForestSSEListener<T extends ForestSSEListener<T>> extends SSESt
      * @since 1.6.0
      */
     <R extends T> R listen();
+    
+    <R extends T> R listen(Consumer<Object> consumer);
+
+    /**
+     * 开始对 SSE 事件流进行监听
+     * 
+     * @param mode 行模式
+     * @return ForestSSEListener 或其子类对象
+     * @param <R> 自身类型
+     */
+    <R extends ForestSSE> R listen(SSELinesMode mode, Consumer<Object> consumer);
+
+    default <R extends ForestSSE> R listen(SSELinesMode mode) {
+        return listen(mode, null);
+    }
 
     /**
      * 开始对 SSE 事件流进行异步监听

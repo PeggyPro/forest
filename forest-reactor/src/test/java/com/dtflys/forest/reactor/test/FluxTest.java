@@ -2,6 +2,7 @@ package com.dtflys.forest.reactor.test;
 
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.reactor.sse.ForestReactorSSE;
 import com.dtflys.forest.utils.TypeReference;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -11,6 +12,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FluxTest extends ForestClientTest {
 
@@ -53,12 +56,48 @@ public class FluxTest extends ForestClientTest {
                 "{\"name\": \"f\"}\n"
         ).throttleBody(len, 1, TimeUnit.SECONDS));
         Forest.get("http://localhost:{}", server.getPort())
-                .logEnabled(true)
                 .execute(new TypeReference<Flux<String>>() {})
                 .subscribe(data -> {
                     System.out.print(data);
                 });
     }
+
+
+    @Test
+    public void testFlux_sse_toFlux() {
+        int len = "{\"name\": \"a\"}\n".getBytes().length;
+        server.enqueue(new MockResponse().setResponseCode(200)
+                .setHeader("Content-Type", "text/event-stream")
+                .setBody(
+                        "{\"name\": \"a\"}\n" +
+                        "{\"name\": \"b\"}\n" +
+                        "{\"name\": \"c\"}\n" +
+                        "{\"name\": \"d\"}\n" +
+                        "{\"name\": \"e\"}\n" +
+                        "{\"name\": \"f\"}\n"
+                ).throttleBody(len, 1, TimeUnit.SECONDS));
+        StringBuffer buffer = new StringBuffer();
+        Forest.get("http://localhost:{}", server.getPort())
+                .sse(ForestReactorSSE.class)
+                .setOnMessage((event, sink) -> {
+                    final MyName myName = event.value(MyName.class);
+                    sink.next(myName);
+                })
+                .toFlux(MyName.class)
+                .subscribe(myName -> {
+                    System.out.println("name -> " + myName.getName());
+                    buffer.append("name -> " + myName.getName() + "\n");
+                });
+        assertThat(buffer.toString()).isEqualTo(
+                "name -> a\n" +
+                "name -> b\n" +
+                "name -> c\n" +
+                "name -> d\n" +
+                "name -> e\n" +
+                "name -> f\n"                        
+        );
+    }
+
 
 
     @Test
@@ -89,11 +128,11 @@ public class FluxTest extends ForestClientTest {
                 .setHeader("Content-Type", "text/event-stream")
                 .setBody(
                         "{\"name\": \"a\"}\n" +
-                                "{\"name\": \"b\"}\n" +
-                                "{\"name\": \"c\"}\n" +
-                                "{\"name\": \"d\"}\n" +
-                                "{\"name\": \"e\"}\n" +
-                                "{\"name\": \"f\"}\n"
+                        "{\"name\": \"b\"}\n" +
+                        "{\"name\": \"c\"}\n" +
+                        "{\"name\": \"d\"}\n" +
+                        "{\"name\": \"e\"}\n" +
+                        "{\"name\": \"f\"}\n"
                 ).throttleBody(len, 1, TimeUnit.SECONDS));
         Forest.get("http://localhost:{}", server.getPort())
                 .logEnabled(true)
