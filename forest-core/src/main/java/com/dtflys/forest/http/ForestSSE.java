@@ -925,15 +925,68 @@ public class ForestSSE implements ForestSSEListener<ForestSSE> {
                 }
                 continue;
             }
-            final EventSource eventSource = parseEventSource(eventList, response, line);
+
+            final char firstChar = line.trim().charAt(0);
+            EventSource eventSource = null;
+            if (firstChar == '[' || firstChar == '{' || firstChar == '<' || firstChar == '"' || firstChar == '\'') {
+                eventSource = new EventSource(eventList, this, "", request, response, line, line);
+            } else {
+                final String[] group = line.split("\\:", 2);
+                if (group.length == 1) {
+                    eventSource = new EventSource(eventList, this, "", request, response, line, line);
+                } else {
+                    final String name = group[0].trim();
+                    final String data = StringUtils.trimBegin(group[1]);
+                    if (eventList.contains(name)) {
+                        if (lastEventSource != null) {
+                            doOnMessage(lastEventSource, lastEventSource.name(), lastEventSource.value(), sink);
+                            if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(lastEventSource.messageResult())) {
+                                return null;
+                            }
+                            eventList = new SSEEventList(this, request, response);
+                            EventSource thisEvent = new EventSource(eventList, this, name, request, response, line, data);
+                            doOnReceiveEventSource(eventList, thisEvent, thisEvent.name(), thisEvent.value(), sink);
+                            if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(thisEvent.messageResult())) {
+                                return thisEvent;
+                            }
+                            lastEventSource = null;
+                            continue;
+                        } else {
+                            EventSource event = eventList.lastEventSource();
+                            if (event != null) {
+                                doOnMessage(event, event.name(), event.value(), sink);
+                                if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(event.messageResult())) {
+                                    return null;
+                                }
+                            }
+                            eventList = new SSEEventList(this, request, response);
+                            EventSource thisEvent = new EventSource(eventList, this, name, request, response, line, data);
+                            doOnReceiveEventSource(eventList, thisEvent, thisEvent.name(), thisEvent.value(), sink);
+                            if (state != SSEState.LISTENING || SSEMessageResult.CLOSE.equals(thisEvent.messageResult())) {
+                                return thisEvent;
+                            }
+                            lastEventSource = null;
+                            continue;
+                        }
+                    } else {
+                        eventSource = new EventSource(eventList, this, name, request, response, line, data);
+                    }
+                }
+            }
+
             doOnReceiveEventSource(eventList, eventSource, eventSource.name(), eventSource.value(), sink);
             lastEventSource = eventSource;
             if (SSEState.LISTENING != state) {
                 break;
             }
         }
+        if (lastEventSource == null && !eventList.isEmpty()) {
+            return eventList.lastEventSource();
+        }
         return lastEventSource;
     }
+
+
 
     protected void decodeLinesWithMultiLinesMode(final ForestResponse<InputStream> response, final InputStream in, final String charset, final SSESink sink) {
         EventSource lastEventSource = null;

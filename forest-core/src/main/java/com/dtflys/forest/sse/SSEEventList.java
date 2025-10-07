@@ -6,7 +6,10 @@ import com.dtflys.forest.http.ForestSSE;
 import com.dtflys.forest.utils.TypeReference;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SSEEventList {
     
@@ -18,7 +21,7 @@ public class SSEEventList {
 
     private final ForestResponse response;
 
-    private final List<EventSource> eventSources = new ArrayList<>(MAX_EVENTS_CAPACITY);
+    private final Map<String, EventSource> eventSources = new LinkedHashMap<>(MAX_EVENTS_CAPACITY);
 
     public ForestSSE sse() {
         return sse;
@@ -39,16 +42,19 @@ public class SSEEventList {
     }
 
     void addEventSource(EventSource eventSource) {
-        eventSources.add(eventSource);
+        eventSources.put(eventSource.name(), eventSource);
     }
     
     public EventSource eventSource(String name) {
-        for (EventSource eventSource : eventSources) {
-            if (eventSource.name().equals(name)) {
-                return eventSource;
-            }
-        }
-        return null;
+        return eventSources.get(name);
+    }
+    
+    public EventSource lastEventSource() {
+        return new ArrayList<>(eventSources.values()).get(size() - 1);
+    }
+    
+    public boolean contains(String name) {
+        return eventSources.containsKey(name);
     }
     
     public int size() {
