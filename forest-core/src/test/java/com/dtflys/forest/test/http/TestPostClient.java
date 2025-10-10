@@ -8,6 +8,7 @@ import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.logging.ForestLogHandler;
 import com.dtflys.forest.logging.ForestLogger;
 import com.dtflys.forest.logging.RequestLogMessage;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.EmptyJsonClient;
 import com.dtflys.forest.test.http.client.PostClient;
 import com.dtflys.forest.test.http.model.Cause;
@@ -21,7 +22,6 @@ import com.dtflys.forest.test.http.model.JsonTestUser4;
 import com.dtflys.forest.test.http.model.UserParam;
 import com.dtflys.forest.utils.Base64Utils;
 import com.dtflys.forest.utils.URLEncoder;
-import com.dtflys.forest.utils.URLUtils;
 import com.google.common.collect.Lists;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 16:55
  */
-public class TestPostClient extends BaseClientTest {
+public class TestPostClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

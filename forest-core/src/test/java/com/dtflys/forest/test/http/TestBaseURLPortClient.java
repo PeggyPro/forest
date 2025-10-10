@@ -2,6 +2,7 @@ package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.BaseURLPortClient;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
@@ -14,7 +15,7 @@ import org.junit.Test;
  * @Date: 2023/9/14 10:03
  * @Version 1.0
  */
-public class TestBaseURLPortClient  extends BaseClientTest {
+public class TestBaseURLPortClient  extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

@@ -3,6 +3,7 @@ package com.dtflys.forest.test.http;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestCookie;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.CookieClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
  * @author gongjun[dt_flys@hotmail.com]
  * @since 2020-12-14 1:04
  */
-public class TestCookieClient extends BaseClientTest {
+public class TestCookieClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 
@@ -39,9 +40,6 @@ public class TestCookieClient extends BaseClientTest {
         configuration = ForestConfiguration.createConfiguration();
     }
 
-    @Override
-    public void afterRequests() {
-    }
 
     public TestCookieClient(String backend, String jsonConverter) {
         super(backend, jsonConverter, configuration);

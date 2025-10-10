@@ -3,6 +3,7 @@ package com.dtflys.forest.test.http;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.BaseReq2Client;
 import com.dtflys.forest.test.http.client.BaseReqClient;
 import com.dtflys.forest.test.http.client.BaseURLClient;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-17 16:12
  */
-public class TestBaseReqClient extends BaseClientTest {
+public class TestBaseReqClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

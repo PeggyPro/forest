@@ -1,25 +1,15 @@
-package com.dtflys.forest.test.http;
+package com.dtflys.forest.test;
 
-import com.dtflys.forest.backend.HttpBackend;
-import com.dtflys.forest.backend.httpclient.HttpclientBackend;
-import com.dtflys.forest.backend.okhttp3.OkHttp3Backend;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.backend.HttpBackend;
-import com.dtflys.forest.backend.httpclient.HttpclientBackend;
-import com.dtflys.forest.backend.okhttp3.OkHttp3Backend;
-import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.converter.json.ForestFastjson2Converter;
 import com.dtflys.forest.converter.json.ForestFastjsonConverter;
 import com.dtflys.forest.converter.json.ForestJacksonConverter;
 import com.dtflys.forest.converter.json.ForestJsonConverter;
 import com.dtflys.forest.exceptions.ForestRuntimeException;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,13 +19,13 @@ import java.util.Collection;
  * @since 2018-02-28 19:15
  */
 @RunWith(Parameterized.class)
-public abstract class BaseClientTest {
+public abstract class ForestClientTest {
 
     protected HttpBackend backend;
 
     protected ForestJsonConverter jsonConverter;
 
-    public BaseClientTest(String backendName, String jsonConverterName, ForestConfiguration configuration) {
+    public ForestClientTest(String backendName, String jsonConverterName, ForestConfiguration configuration) {
         this.backend = configuration.getBackendSelector().select(backendName, configuration);
         this.jsonConverter = selectJsonConverter(jsonConverterName);
         configuration.setCacheEnabled(false);
@@ -71,7 +61,6 @@ public abstract class BaseClientTest {
 
     @After
     public void afterRequests() {
-
     }
 
 }

@@ -6,9 +6,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONReader;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.dtflys.forest.Forest;
-import com.dtflys.forest.annotation.Body;
-import com.dtflys.forest.annotation.Post;
-import com.dtflys.forest.annotation.Var;
 import com.dtflys.forest.auth.BasicAuth;
 import com.dtflys.forest.auth.BearerAuth;
 import com.dtflys.forest.backend.ContentType;
@@ -26,7 +23,6 @@ import com.dtflys.forest.logging.LogConfiguration;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.retryer.NoneRetryer;
 import com.dtflys.forest.sse.SSELinesMode;
-import com.dtflys.forest.test.http.BaseClientTest;
 import com.dtflys.forest.test.http.model.UserParam;
 import com.dtflys.forest.test.model.Contact;
 import com.dtflys.forest.test.model.Result;
@@ -81,7 +77,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-public class TestGenericForestClient extends BaseClientTest {
+public class TestGenericForestClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"1\", \"data\":\"2\"}";
 
@@ -3976,7 +3972,50 @@ public class TestGenericForestClient extends BaseClientTest {
                 "SSE Close"
         );
     }
-    
+
+    @Test
+    public void testSSE_subscribe() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "data:start\n" +
+                "data:hello\n" +
+                "event:ignore\n" +
+                "event:close\n" +
+                "data:dont show"
+        ));
+        StringBuffer buffer = new StringBuffer();
+
+        Forest.get("http://localhost:{}/sse", server.getPort())
+                .sse()
+                .setOnOpen(eventSource -> {
+                    buffer.append("SSE Open\n");
+                })
+                .setOnClose(eventSource -> {
+                    buffer.append("SSE Close");
+                })
+                .addOnData((eventSource, name, value, sink) -> {
+                    buffer.append("Receive data: ").append(value).append("\n");
+                    sink.next(value);
+                })
+                .addOnEventMatchesPrefix("close", (eventSource, name, value, sink) -> {
+                    buffer.append("Receive event: ").append(value).append("\n");
+                    sink.next(value);
+                    eventSource.close();
+                })
+                .listen(data -> {
+                    System.out.println("subscribe: " + data);
+                });
+        System.out.println(buffer);
+
+        assertThat(buffer.toString()).isEqualTo(
+                "SSE Open\n" +
+                        "Receive data: start\n" +
+                        "Receive data: hello\n" +
+                        "Receive event: close\n" +
+                        "SSE Close"
+        );
+    }
+
+
 
     @Test
     public void testAsyncSSE() {
@@ -4166,7 +4205,7 @@ public class TestGenericForestClient extends BaseClientTest {
                 "id:3\n" +
                 "event:json\n" +
                 "data:{\"name\": \"c\", \"age\": 9}\n"
-        ));
+        ).throttleBody(64, 1, TimeUnit.SECONDS));
 
         final StringBuffer buffer = new StringBuffer();
 

@@ -34,7 +34,7 @@
 	</scm>
 
 	<properties>
-		<revision>1.7.6</revision>
+		<revision>1.8.0</revision>
 		<maven.compiler.source>8</maven.compiler.source>
 		<maven.compiler.target>8</maven.compiler.target>
 
@@ -63,6 +63,8 @@
 		<httpclient.version>4.5.13</httpclient.version>
 		<hutool.version>5.8.35</hutool.version>
 		<jsonpath.version>2.9.0</jsonpath.version>
+		<reactor-core.version>3.7.11</reactor-core.version>
+
 
 		<byte-buddy.version>1.15.11</byte-buddy.version>
 		<mockwebserver.version>3.14.9</mockwebserver.version>
@@ -88,6 +90,7 @@
 		<module>forest-core</module>
 		<module>forest-jaxb</module>
 		<module>forest-jakarta-xml</module>
+		<module>forest-reactor</module>
 		<module>forest-spring</module>
 		<module>forest-spring-boot-starter</module>
 		<module>forest-spring-boot3-starter</module>

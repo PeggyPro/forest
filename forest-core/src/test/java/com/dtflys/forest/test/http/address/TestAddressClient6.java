@@ -2,7 +2,7 @@ package com.dtflys.forest.test.http.address;
 
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestAddressClient6 extends BaseClientTest {
+public class TestAddressClient6 extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

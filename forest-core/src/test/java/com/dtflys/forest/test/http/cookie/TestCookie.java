@@ -11,7 +11,7 @@ import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.http.cookie.ForestCookieStorage;
 import com.dtflys.forest.http.cookie.MemoryCookieStorage;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -31,7 +31,7 @@ import java.util.Locale;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestCookie extends BaseClientTest {
+public class TestCookie extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"1\", \"data\":\"2\"}";
 

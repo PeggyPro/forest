@@ -21,6 +21,7 @@ public class ContentType {
     public final static String MULTIPART_FORM_DATA = "multipart/form-data";
     public final static String X_WWW_FORM_URLENCODED = "x-www-form-urlencoded";
     public final static String APPLICATION_X_PROTOBUF = "application/x-protobuf";
+    public final static String TEXT_EVENT_STREAM = "text/event-stream";
 
     private final String type;
 

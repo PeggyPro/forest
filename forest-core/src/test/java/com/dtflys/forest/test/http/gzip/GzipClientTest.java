@@ -4,7 +4,7 @@ import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestResponse;
 import com.dtflys.forest.reflection.BasicVariable;
 import com.dtflys.forest.test.mock.Get2MockServer;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @version v1.0
  * @since 2021-04-13
  **/
-public class GzipClientTest extends BaseClientTest {
+public class GzipClientTest extends ForestClientTest {
 
     @Rule
     public Get2MockServer server = new Get2MockServer(this);

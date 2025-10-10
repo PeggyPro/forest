@@ -1,5 +1,6 @@
 package com.dtflys.forest.backend.httpclient.response;
 
+import com.dtflys.forest.backend.ContentType;
 import com.dtflys.forest.handler.LifeCycleHandler;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.utils.ForestProgress;
@@ -15,7 +16,7 @@ public class HttpclientEntity implements HttpEntity {
     private final HttpEntity entity;
 
     private final LifeCycleHandler handler;
-
+    
     private long contentLength = -1;
 
     private long readBytes;
@@ -24,6 +25,7 @@ public class HttpclientEntity implements HttpEntity {
 
     private long currentStep = 0;
 
+    ContentType contentType;
 
     public HttpclientEntity(ForestRequest request, HttpEntity entity, LifeCycleHandler handler) {
         this.request = request;
@@ -61,7 +63,7 @@ public class HttpclientEntity implements HttpEntity {
     public InputStream getContent() throws IOException, UnsupportedOperationException {
         if (isStreaming()) {
             final InputStream in = entity.getContent();
-            if (request.isSSE()) {
+            if (request.isReceiveStream() && !request.isDownloadFile()) {
                 return in;
             }
             final ByteArrayOutputStream out = new ByteArrayOutputStream();

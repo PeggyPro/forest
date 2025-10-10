@@ -3,7 +3,7 @@ package com.dtflys.forest.test.http.redirect;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestBaseRedirectClient extends BaseClientTest {
+public class TestBaseRedirectClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

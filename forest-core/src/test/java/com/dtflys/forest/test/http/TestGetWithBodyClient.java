@@ -1,6 +1,7 @@
 package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.GetWithBodyClient;
 import com.dtflys.forest.test.mock.GetWithBodyMockServer;
 import org.junit.Before;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 16:55
  */
-public class TestGetWithBodyClient extends BaseClientTest {
+public class TestGetWithBodyClient extends ForestClientTest {
 
     @Rule
     public GetWithBodyMockServer server = new GetWithBodyMockServer(this);

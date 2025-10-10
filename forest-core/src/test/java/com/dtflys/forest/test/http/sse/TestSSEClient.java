@@ -4,9 +4,8 @@ import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.http.ForestSSE;
 import com.dtflys.forest.sse.SSELinesMode;
 import com.dtflys.forest.test.model.Contact;
-import com.dtflys.forest.test.model.TestUser;
 import com.dtflys.forest.test.sse.MySSEHandler;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.sse.MySSEHandler2;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -15,7 +14,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestSSEClient extends BaseClientTest {
+public class TestSSEClient extends ForestClientTest {
 
     @Rule
     public MockWebServer server = new MockWebServer();

@@ -1,6 +1,7 @@
 package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.DeleteClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2017-05-11 17:24
  */
-public class TestDeleteClient extends BaseClientTest {
+public class TestDeleteClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\":\"ok\"}";
 

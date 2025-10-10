@@ -48,6 +48,12 @@ import com.dtflys.forest.filter.EncodeUserInfoFilter;
 import com.dtflys.forest.filter.Filter;
 import com.dtflys.forest.filter.JSONFilter;
 import com.dtflys.forest.filter.XmlFilter;
+import com.dtflys.forest.result.ByteArrayResultHandler;
+import com.dtflys.forest.result.FutureResultHandler;
+import com.dtflys.forest.result.InputStreamResultHandler;
+import com.dtflys.forest.result.ResponseResultHandler;
+import com.dtflys.forest.result.ResultTypeHandler;
+import com.dtflys.forest.result.ResultTypeHandlerManager;
 import com.dtflys.forest.http.*;
 import com.dtflys.forest.http.cookie.ForestCookieStorage;
 import com.dtflys.forest.http.cookie.MemoryCookieStorage;
@@ -63,10 +69,7 @@ import com.dtflys.forest.pool.FixedRequestPool;
 import com.dtflys.forest.pool.ForestRequestPool;
 import com.dtflys.forest.proxy.ProxyFactory;
 import com.dtflys.forest.reflection.*;
-import com.dtflys.forest.result.AfterExecuteResultTypeHandler;
-import com.dtflys.forest.result.ForestRequestResultHandler;
-import com.dtflys.forest.result.ResultTypeHandler;
-import com.dtflys.forest.result.ReturnOnInvokeMethodTypeHandler;
+import com.dtflys.forest.result.SSEResultHandler;
 import com.dtflys.forest.retryer.BackOffRetryer;
 import com.dtflys.forest.ssl.SSLKeyStore;
 import com.dtflys.forest.utils.ForestCache;
@@ -81,7 +84,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -118,6 +120,12 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
      * 请求接口的实例缓存，用于缓存请求接口的动态代理的实例
      */
     private Map<Class, Object> instanceCache = new ConcurrentHashMap<>();
+
+    /**
+     * 响应结果类型处理器的管理器
+     * @since v1.8.0
+     */
+    private final ResultTypeHandlerManager resultTypeHandlerManager = new ResultTypeHandlerManager();
 
     private String id;
 
@@ -352,16 +360,6 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
     private Map<String, SSLKeyStore> sslKeyStores = new HashMap<>();
 
     /**
-     * 返回类型处理器列表: 调用接口方法时返回
-     */
-    private List<ReturnOnInvokeMethodTypeHandler<?>> returnOnInvokeMethodTypeHandlers = new LinkedList<>();
-
-    /**
-     * 返回类型处理器列表: 请求执行后返回
-     */
-    private List<AfterExecuteResultTypeHandler<?>> afterExecuteResultTypeHandlers = new LinkedList<>();
-
-    /**
      * 是否允许 Cookie 自动存取
      */
     private boolean autoCookieSaveAndLoadEnabled = false;
@@ -460,9 +458,10 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
         configuration.registerFilter("encodeQuery", EncodeQueryFilter.class);
         configuration.registerFilter("encodeForm", EncodeFormFilter.class);
 
-        configuration.registerResultTypeHandler(ForestRequestResultHandler.class);
-
         configuration.setLogHandler(new DefaultLogHandler());
+
+        ServiceLoader.load(ResultTypeHandler.class).forEach(configuration::registerResultTypeHandler);
+
         return configuration;
     }
 
@@ -484,6 +483,30 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
     public Map<Class, Object> getInstanceCache() {
         return instanceCache;
     }
+
+    /**
+     * 获取响应结果类型处理器的管理器
+     * 
+     * @return 响应结果类型处理器的管理器
+     * @since v1.8.0
+     */
+    public ResultTypeHandlerManager getResultTypeHandlerManager() {
+        return resultTypeHandlerManager;
+    }
+    
+
+    /**
+     * 注册响应结果类型处理器
+     * 
+     * @param resultTypeHandler 响应结果类型处理器
+     * @return 当前ForestConfiguration实例
+     * @since v1.8.0
+     */
+    public ForestConfiguration registerResultTypeHandler(ResultTypeHandler resultTypeHandler) {
+        this.resultTypeHandlerManager.registerHandler(resultTypeHandler);
+        return this;
+    }
+    
 
     /**
      * 配置HTTP后端
@@ -2255,41 +2278,8 @@ public class ForestConfiguration extends AbstractVariableScope<ForestConfigurati
     }
 
 
-    /**
-     * 注册返回类型处理器
-     *
-     * @param handler {@link ResultTypeHandler}实例
-     * @return 当前ForestConfiguration实例
-     * @since 1.6.0
-     */
-    public ForestConfiguration registerResultTypeHandler(ResultTypeHandler<?> handler) {
-        if (handler instanceof ReturnOnInvokeMethodTypeHandler) {
-            this.returnOnInvokeMethodTypeHandlers.add((ReturnOnInvokeMethodTypeHandler<?>) handler);
-        }
-        return this;
-    }
 
-    /**
-     * 注册返回类型处理器
-     *
-     * @param handlerClass 返回类型处理器类
-     * @return 当前ForestConfiguration实例
-     * @since 1.6.0
-     */
-    public ForestConfiguration registerResultTypeHandler(Class<? extends ResultTypeHandler<?>> handlerClass) {
-        final ResultTypeHandler<?> handlerInstance = this.getForestObjectFactory().getObject(handlerClass);
-        return registerResultTypeHandler(handlerInstance);
-    }
 
-    /**
-     * 获取返回类型处理器列表: 调用接口方法时返回
-     *
-     * @return 返回类型处理器列表 (调用接口方法时返回结果的处理器)
-     * @since 1.6.0
-     */
-    public List<ReturnOnInvokeMethodTypeHandler<?>> getReturnOnInvokeMethodTypeHandlers() {
-        return returnOnInvokeMethodTypeHandlers;
-    }
 
     private <R> ForestRequest<R> createRequest(Class<R> clazz) {
         final ForestRequest<R> request = new ForestRequest<>(this);

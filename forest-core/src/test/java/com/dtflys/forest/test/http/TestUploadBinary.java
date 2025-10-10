@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import com.dtflys.forest.backend.ContentType;
 import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.mock.MockServerRequest;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.BinaryClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -16,7 +17,7 @@ import java.util.Objects;
 
 import static junit.framework.Assert.assertEquals;
 
-public class TestUploadBinary extends BaseClientTest {
+public class TestUploadBinary extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

@@ -1,0 +1,5 @@
+com.dtflys.forest.result.ResponseResultHandler
+com.dtflys.forest.result.FutureResultHandler
+com.dtflys.forest.result.SSEResultHandler
+com.dtflys.forest.result.ByteArrayResultHandler
+com.dtflys.forest.result.InputStreamResultHandler

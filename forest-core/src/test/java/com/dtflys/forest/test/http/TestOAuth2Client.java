@@ -1,13 +1,11 @@
 package com.dtflys.forest.test.http;
 
 import com.dtflys.forest.config.ForestConfiguration;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.test.http.client.OAuth2Client;
 import com.dtflys.forest.test.mock.OAuth2MockServer;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author HouKunLin
  */
-public class TestOAuth2Client extends BaseClientTest {
+public class TestOAuth2Client extends ForestClientTest {
 
     @Rule
     public MockWebServer server = new MockWebServer();

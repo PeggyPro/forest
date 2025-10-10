@@ -5,6 +5,7 @@ import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.exceptions.ForestRuntimeException;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
+import com.dtflys.forest.test.ForestClientTest;
 import com.dtflys.forest.ssl.SSLKeyStore;
 import com.dtflys.forest.ssl.SSLSocketFactoryBuilder;
 import com.dtflys.forest.test.http.client.SSLClient;
@@ -42,7 +43,7 @@ import static org.assertj.core.api.Assertions.*;
  * @author gongjun[jun.gong@thebeastshop.com]
  * @since 2018-03-01 19:41
  */
-public class TestSSLClient extends BaseClientTest {
+public class TestSSLClient extends ForestClientTest {
 
     private final static Logger log = LoggerFactory.getLogger(TestSSLClient.class);
 
@@ -67,9 +68,6 @@ public class TestSSLClient extends BaseClientTest {
 
     private SSLClient sslClient;
 
-    @Override
-    public void afterRequests() {
-    }
 
     private static class MySSLSocketFactoryBuilder implements SSLSocketFactoryBuilder {
 

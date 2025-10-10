@@ -9,6 +9,10 @@ package com.dtflys.forest.sse;
 public interface SSEMessageConsumer<V> {
 
     void onMessage(EventSource eventSource, String name, V value);
+    
+    default void onMessage(EventSource eventSource, String name, V value, SSESink sink) {
+        onMessage(eventSource, name, value);
+    }
 
     default boolean matches(EventSource eventSource) {
         return true;

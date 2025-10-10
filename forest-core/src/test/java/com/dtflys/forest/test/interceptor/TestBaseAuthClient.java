@@ -1,7 +1,7 @@
 package com.dtflys.forest.test.interceptor;
 
 import com.dtflys.forest.config.ForestConfiguration;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpHeaders;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestBaseAuthClient extends BaseClientTest {
+public class TestBaseAuthClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"ok\"}";
 

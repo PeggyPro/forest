@@ -5,7 +5,7 @@ import com.dtflys.forest.config.ForestConfiguration;
 import com.dtflys.forest.exceptions.ForestRuntimeException;
 import com.dtflys.forest.http.ForestRequest;
 import com.dtflys.forest.http.ForestResponse;
-import com.dtflys.forest.test.http.BaseClientTest;
+import com.dtflys.forest.test.ForestClientTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.BeforeClass;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.dtflys.forest.mock.MockServerRequest.mockRequest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TestRetryClient extends BaseClientTest {
+public class TestRetryClient extends ForestClientTest {
 
     public final static String EXPECTED = "{\"status\": \"error\"}";
 

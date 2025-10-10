@@ -24,7 +24,6 @@
 
 package com.dtflys.forest.http;
 
-import cn.hutool.core.collection.ConcurrentHashSet;
 import cn.hutool.core.lang.func.Consumer3;
 import com.dtflys.forest.auth.BasicAuth;
 import com.dtflys.forest.auth.ForestAuthenticator;
@@ -77,6 +76,7 @@ import com.dtflys.forest.pool.ForestRequestPool;
 import com.dtflys.forest.reflection.ForestMethod;
 import com.dtflys.forest.reflection.ForestVariable;
 import com.dtflys.forest.reflection.MethodLifeCycleHandler;
+import com.dtflys.forest.result.ResultTypeHandler;
 import com.dtflys.forest.retryer.ForestRetryer;
 import com.dtflys.forest.ssl.SSLKeyStore;
 import com.dtflys.forest.ssl.SSLSocketFactoryBuilder;
@@ -97,7 +97,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -4485,26 +4484,9 @@ public class ForestRequest<T> extends AbstractVariableScope<ForestRequest<T>> im
         }
         final Type resultType = getLifeCycleHandler().getResultType();
         final Class<?> resultClass = ReflectUtils.toClass(resultType);
-        if (InputStream.class.isAssignableFrom(resultClass)) {
-            return true;
-        }
-        final boolean isResultResponse = ForestResponse.class.isAssignableFrom(resultClass);
-        final boolean isResultOptional = Optional.class.isAssignableFrom(resultClass);
-        
-        if (isResultResponse || isResultOptional) {
-            ParameterizedType parameterizedType = ReflectUtils.toParameterizedType(resultType);
-            if (parameterizedType != null) {
-                final Type argType = parameterizedType.getActualTypeArguments()[0];
-                final Class<?> argClass = ReflectUtils.toClass(argType);
-                if (InputStream.class.isAssignableFrom(argClass)) {
-                    return true;
-                }
-                if (Object.class.equals(argClass) && isResultResponse) {
-                    return true;
-                }
-            } else if (isResultResponse) {
-                return false;
-            }
+        final ResultTypeHandler resultTypeHandler = configuration.getResultTypeHandlerManager().matchHandler(resultClass, resultType);
+        if (resultTypeHandler != null) {
+            return resultTypeHandler.isStream(resultClass, resultType);
         }
         return false;
     }
